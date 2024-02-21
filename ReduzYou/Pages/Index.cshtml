@@ -1,0 +1,15 @@
+﻿@page
+@model ReduzYou.Pages.IndexModel
+@{
+    ViewData["Title"] = "- Home";
+}
+
+<form id="sign-form" action="/api/create_account" method="post">
+    <div id="sign-warning"></div>
+    <input name="username" type="text" maxlength="32" />
+    <input name="password" type="password" maxlength="32" />
+
+    <button type="submit">Cadastrar</button>
+</form>
+
+<script type="text/javascript" src="/js/account_form.js"></script>
