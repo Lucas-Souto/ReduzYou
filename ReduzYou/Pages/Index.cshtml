@@ -2,20 +2,37 @@
 @model ReduzYou.Pages.IndexModel
 @{
     ViewData["Title"] = "- Home";
+    bool logged = string.IsNullOrEmpty(HttpContext.Session.GetString("_Id"));
 }
 
-<button id="log" type="button">Entrar</button>
-<button id="sign" type="button">Cadastrar</button>
+@if (logged)
+{
+    <button id="log" type="button">Entrar</button>
+    <button id="sign" type="button">Cadastrar</button>
+}
+else
+{
+    <button type="button">Criar</button>
+    <button type="button" onclick="exit()">Sair</button>
 
-@if (string.IsNullOrEmpty(HttpContext.Session.GetString("_Id")))
+    <script>
+        function exit()
+        {
+            request("api/exit_account", "get", {}, false, () => location.reload());
+        }
+    </script>
+}
+
+@if (logged)
 {
     <form id="account-form" method="post">
         <div id="account-warning"></div>
         <input name="username" type="text" maxlength="32" />
         <input name="password" type="password" maxlength="32" />
 
-        <button type="submit">Cadastrar</button>
-    </form>
+        <button type="submit">Pronto!</button>
+	</form>
 
-    <script type="text/javascript" src="/js/account_form.js"></script>
+	<script type="text/javascript" src="/js/account_form.js"></script>
 }
+

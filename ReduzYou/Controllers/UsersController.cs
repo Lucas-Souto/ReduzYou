@@ -38,6 +38,9 @@ namespace ReduzYou.Controllers
 
             return result.Length > 0;
         }
+        [HttpGet]
+        [ActionName("exit_account")]
+        public void ExitAccount() => HttpContext.Session.Clear();
 
         [NonAction]
         private void CreateSection(string id, string username)

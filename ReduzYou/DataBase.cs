@@ -37,7 +37,7 @@ internal static class DataBase
     {
         string result = string.Empty;
 
-        "SELECT username, password FROM users WHERE username = @username".Query((reader) =>
+        "SELECT id, username, password FROM users WHERE username = @username".Query((reader) =>
         {
             if (reader.Read())
             {
