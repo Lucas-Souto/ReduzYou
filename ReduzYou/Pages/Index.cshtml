@@ -4,12 +4,18 @@
     ViewData["Title"] = "- Home";
 }
 
-<form id="sign-form" action="/api/create_account" method="post">
-    <div id="sign-warning"></div>
-    <input name="username" type="text" maxlength="32" />
-    <input name="password" type="password" maxlength="32" />
+<button id="log" type="button">Entrar</button>
+<button id="sign" type="button">Cadastrar</button>
 
-    <button type="submit">Cadastrar</button>
-</form>
+@if (string.IsNullOrEmpty(HttpContext.Session.GetString("_Id")))
+{
+    <form id="account-form" method="post">
+        <div id="account-warning"></div>
+        <input name="username" type="text" maxlength="32" />
+        <input name="password" type="password" maxlength="32" />
 
-<script type="text/javascript" src="/js/account_form.js"></script>
+        <button type="submit">Cadastrar</button>
+    </form>
+
+    <script type="text/javascript" src="/js/account_form.js"></script>
+}

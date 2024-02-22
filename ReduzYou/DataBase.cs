@@ -15,7 +15,7 @@ internal static class DataBase
 
             IsConnected = true;
 
-            "CREATE TABLE IF NOT EXISTS users(username VARCHAR(32) PRIMARY KEY, password VARCHAR(255) NOT NULL)".Run();
+            "CREATE TABLE IF NOT EXISTS users(id VARCHAR(36), username VARCHAR(32), password VARCHAR(255) NOT NULL, PRIMARY KEY (id, username))".Run();
         }
         catch (MySqlException e)
         {
@@ -32,14 +32,17 @@ internal static class DataBase
         Connection = null;
     }
 
-    public static int InsertUser(string username, string password) => "INSERT INTO users (username, password) VALUES (@username, @password)".Run(("@username", username), ("@password", BCrypt.Net.BCrypt.HashPassword(password)));
-    public static bool ValidateLogin(string username, string password)
+    public static void InsertUser(string username, string password) => "INSERT INTO users (id, username, password) VALUES (uuid(), @username, @password)".Run(("@username", username), ("@password", BCrypt.Net.BCrypt.HashPassword(password)));
+    public static string ValidateLogin(string username, string password)
     {
-        bool result = false;
+        string result = string.Empty;
 
         "SELECT username, password FROM users WHERE username = @username".Query((reader) =>
         {
-            if (reader.Read()) result = BCrypt.Net.BCrypt.Verify(password, reader.GetString("password"));
+            if (reader.Read())
+            {
+                if (BCrypt.Net.BCrypt.Verify(password, reader.GetString("password"))) result = reader.GetString("id");
+            }
         }, ("@username", username));
 
         return result;
@@ -51,6 +54,17 @@ internal static class DataBase
         "SELECT username FROM users WHERE username = @username".Query((reader) =>
         {
             if (reader.Read()) result = true;
+        }, ("@username", username));
+
+        return result;
+    }
+    public static string GetId(string username)
+    {
+        string result = string.Empty;
+
+        "SELECT id FROM users WHERE username = @username".Query((reader) =>
+        {
+            if (reader.Read()) result = reader.GetString("id");
         }, ("@username", username));
 
         return result;

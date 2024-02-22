@@ -15,16 +15,40 @@ namespace ReduzYou.Controllers
         [ActionName("create_account")]
         public byte CreateAccount([FromForm]string username, [FromForm]string password)
         {
-            if (username.Length < 3 || username.Length > 32 || password.Length < 7 || password.Length > 32 ||
-                !ValidUser.IsMatch(username) || !ValidPassword.IsMatch(password)) return 2;
+            if (!ValidateUserData(username, password)) return 2;
 
             if (DataBase.UserExists(username)) return 0;
             else
             {
                 DataBase.InsertUser(username, password);
+                CreateSection(DataBase.GetId(username), username);
 
                 return 1;
             }
         }
+        [HttpPost]
+        [ActionName("enter_account")]
+        public bool EnterAccount([FromForm] string username, [FromForm] string password)
+        {
+            if (!ValidateUserData(username, password)) return false;
+
+            string result = DataBase.ValidateLogin(username, password);
+
+            CreateSection(result, username);
+
+            return result.Length > 0;
+        }
+
+        [NonAction]
+        private void CreateSection(string id, string username)
+        {
+            if (string.IsNullOrEmpty(HttpContext.Session.GetString("_Id")))
+            {
+                HttpContext.Session.SetString("_Id", id);
+                HttpContext.Session.SetString("_Username", username);
+            }
+        }
+        [NonAction]
+        private bool ValidateUserData(string username, string password) => username.Length >= 3 && username.Length <= 32 && password.Length >= 7 && password.Length <= 32 && ValidUser.IsMatch(username) && ValidPassword.IsMatch(password);
     }
 }
