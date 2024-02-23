@@ -1,1 +1,23 @@
-@import url("normalize.css");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
+
+:root
+{
+	--main: #08E287;
+	--white: #DEEAEB;
+	--background: #1A1C22;
+	--sub-background: #2F3443;
+
+	--font: "Inter", sans-serif;
+}
+
+*
+{
+	font-family: var(--font);
+}
+
+body
+{
+	overflow-x: hidden;
+
+	background-color: var(--background);
+}

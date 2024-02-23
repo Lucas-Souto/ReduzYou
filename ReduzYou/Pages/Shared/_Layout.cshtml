@@ -2,8 +2,10 @@
 <html lang="pt-br">
 	<head>
 		<meta charset="utf-8" />
-		<link rel="stylesheet" href="/css/base.css" />
+		<link rel="stylesheet" href="/css/normalize.css" />
+		@RenderSection("styles", false)
 		<script type="text/javascript" src="/js/request.js"></script>
+		@RenderSection("scripts", false)
 
 		<title>ReduzYou @ViewBag.Title</title>
 	</head>

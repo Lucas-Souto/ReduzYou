@@ -15,7 +15,25 @@ internal static class DataBase
 
             IsConnected = true;
 
-            "CREATE TABLE IF NOT EXISTS users(id VARCHAR(36), username VARCHAR(32), password VARCHAR(255) NOT NULL, PRIMARY KEY (id, username))".Run();
+            @"CREATE TABLE IF NOT EXISTS users
+            (
+                id VARCHAR(36) PRIMARY KEY,
+                username VARCHAR(32) UNIQUE,
+                password VARCHAR(255) NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS posts
+            (
+                id VARCHAR(36) PRIMARY KEY,
+                link VARCHAR(255) NOT NULL,
+                author VARCHAR(32) NOT NULL,
+                title VARCHAR(64) NOT NULL,
+                content LONGTEXT NOT NULL,
+                cover VARCHAR(255),
+                tags VARCHAR(80) NOT NULL,
+                date DATETIME,
+                isDraft BOOLEAN NOT NULL DEFAULT 1,
+                FOREIGN KEY (author) REFERENCES users(username) ON UPDATE CASCADE ON DELETE CASCADE
+            );".Run();
         }
         catch (MySqlException e)
         {
@@ -32,6 +50,7 @@ internal static class DataBase
         Connection = null;
     }
 
+    #region Users
     public static void InsertUser(string username, string password) => "INSERT INTO users (id, username, password) VALUES (uuid(), @username, @password)".Run(("@username", username), ("@password", BCrypt.Net.BCrypt.HashPassword(password)));
     public static string ValidateLogin(string username, string password)
     {
@@ -69,6 +88,10 @@ internal static class DataBase
 
         return result;
     }
+    #endregion
+    #region Posts
+
+    #endregion
 
     private static int Run(this string sql, params (string name, object value)[] args)
     {

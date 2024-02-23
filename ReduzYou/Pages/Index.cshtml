@@ -2,37 +2,65 @@
 @model ReduzYou.Pages.IndexModel
 @{
     ViewData["Title"] = "- Home";
-    bool logged = string.IsNullOrEmpty(HttpContext.Session.GetString("_Id"));
+    bool logged = !string.IsNullOrEmpty(HttpContext.Session.GetString("_Id"));
 }
 
-@if (logged)
+@section styles
 {
-    <button id="log" type="button">Entrar</button>
-    <button id="sign" type="button">Cadastrar</button>
+    <link rel="stylesheet" href="/css/index.css" />
 }
-else
-{
-    <button type="button">Criar</button>
-    <button type="button" onclick="exit()">Sair</button>
 
-    <script>
-        function exit()
+<header>
+    <a href="/"><img id="header-logo" src="/img/logo.svg" /></a>
+
+    <div id="header-buttons">
+        @if (logged)
         {
-            request("api/exit_account", "get", {}, false, () => location.reload());
+            <button class="header-button fill" type="button">Criar</button>
+            <button class="header-button" type="button" onclick="exit()">Sair</button>
         }
-    </script>
-}
+        else
+        {
+            <button class="header-button fill" id="log" type="button">Entrar</button>
+            <button class="header-button" id="sign" type="button">Cadastrar</button>
+        }
+    </div>
+</header>
 
-@if (logged)
+@if (!logged)
 {
     <form id="account-form" method="post">
-        <div id="account-warning"></div>
-        <input name="username" type="text" maxlength="32" />
-        <input name="password" type="password" maxlength="32" />
+        <h1 id="account-form-title"></h1>
+
+        <div id="account-warning" hidden></div>
+
+        <div class="input-label">
+            <label for="username">Usuário:</label>
+            <input name="username" type="text" maxlength="32" placeholder="meu_login" />
+        </div>
+
+        <div class="input-label">
+            <label for="password">Senha:</label>
+            <input name="password" type="password" maxlength="32" placeholder="*******" />
+        </div>
 
         <button type="submit">Pronto!</button>
 	</form>
-
-	<script type="text/javascript" src="/js/account_form.js"></script>
 }
 
+@section scripts
+{
+    @if (logged)
+    {
+        <script>
+            function exit()
+            {
+                request("api/exit_account", "get", {}, false, () => location.reload());
+            }
+        </script>
+    }
+    else
+    {
+        <script type="text/javascript" src="/js/account_form.js" defer></script>
+    }
+}

@@ -1,0 +1,116 @@
+﻿@import url("base.css");
+
+header
+{
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+
+	padding: 1em;
+	
+	background-color: var(--background);
+	box-shadow: 0px 8px 5px -10px var(--sub-background);
+}
+
+#header-logo
+{
+	width: 16em;
+}
+
+.header-button,
+#account-form button
+{
+	cursor: pointer;
+	font-size: 1.25em;
+
+	padding: .5em;
+
+	color: var(--white);
+	border: 2px solid var(--sub-background);
+	background-color: transparent;
+}
+
+.header-button.fill
+{
+	background-color: var(--sub-background);
+}
+
+#account-form
+{
+	z-index: 1000;
+	gap: 1em;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	position: absolute;
+	top: 0;
+	right: -100%;
+	overflow: hidden;
+
+	padding: 2em;
+
+	color: var(--white);
+	background-color: var(--background);
+	box-shadow: -8px 0px 5px -10px var(--sub-background);
+	transition: linear 0.25s;
+}
+
+#account-form.show
+{
+	right: 0;
+	transition: linear 0.25s;
+}
+
+#account-form-title
+{
+	font-size: 2em;
+
+	margin: 0;
+}
+
+#account-warning
+{
+	padding: 1em;
+
+	border: 2px solid #E2083D;
+	border-radius: 10px;
+}
+
+.input-label
+{
+	display: flex;
+	flex-direction: column;
+}
+
+.input-label label
+{
+	font-size: 1.25em;
+}
+
+.input-label input
+{
+	font-size: 2em;
+
+	padding: .25em;
+	
+	color: var(--white);
+	border: 2px solid var(--sub-background);
+	background-color: transparent;
+}
+
+.input-label input::placeholder
+{
+	color: var(--sub-background);
+}
+
+.input-label input:focus
+{
+	outline: none;
+	box-shadow: 0px 0px 20px -2px var(--sub-background);
+}
+
+#account-form button
+{
+	font-size: 1.5em;
+}

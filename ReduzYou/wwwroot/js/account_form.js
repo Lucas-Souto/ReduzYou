@@ -1,5 +1,7 @@
 ﻿const accountForm = document.getElementById("account-form"),
-    accountWarning = document.getElementById("account-warning");
+    accountWarning = document.getElementById("account-warning"),
+    accountFormTitle = document.getElementById("account-form-title");
+const log = document.getElementById("log"), sign = document.getElementById("sign");
 const validUser = /^[a-zA-Z0-9-_]+$/, validPass = /^[a-zA-Z0-9-_!?]+$/;
 
 accountForm.addEventListener("submit", (e) =>
@@ -26,7 +28,26 @@ accountForm.addEventListener("submit", (e) =>
             case 'false': accountWarning.innerHTML = "Nome de usuário ou senha incorretos!"; break;
         }
     }, (request) => accountWarning.innerHTML = `Ocorreu um erro (${request.status}).`);
+
+    if (accountWarning.innerHTML.length == 0) accountWarning.setAttribute("hidden", true);
+    else accountWarning.removeAttribute("hidden");
 });
 
-document.getElementById("log").addEventListener("click", (e) => accountForm.setAttribute("action", "api/enter_account"));
-document.getElementById("sign").addEventListener("click", (e) => accountForm.setAttribute("action", "api/create_account"));
+window.addEventListener("click", (e) =>
+{
+    if (accountForm.classList.contains("show") && !accountForm.contains(e.target)) accountForm.classList.remove("show");
+    else if (log.contains(e.target))
+    {
+        accountForm.setAttribute("action", "api/enter_account");
+        accountForm.classList.add("show");
+
+        accountFormTitle.innerText = "Entrar";
+    }
+    else if (sign.contains(e.target))
+    {
+        accountForm.setAttribute("action", "api/create_account");
+        accountForm.classList.add("show");
+
+        accountFormTitle.innerText = "Cadastrar";
+    }
+});
