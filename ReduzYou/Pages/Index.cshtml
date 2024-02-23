@@ -10,43 +10,9 @@
     <link rel="stylesheet" href="/css/index.css" />
 }
 
-<header>
-    <a href="/"><img id="header-logo" src="/img/logo.svg" /></a>
+@(await Html.RenderComponentAsync<ReduzYou.Pages.Components.Header>(RenderMode.Static, new { Logged = logged }))
 
-    <div id="header-buttons">
-        @if (logged)
-        {
-            <button class="header-button fill" type="button">Criar</button>
-            <button class="header-button" type="button" onclick="exit()">Sair</button>
-        }
-        else
-        {
-            <button class="header-button fill" id="log" type="button">Entrar</button>
-            <button class="header-button" id="sign" type="button">Cadastrar</button>
-        }
-    </div>
-</header>
-
-@if (!logged)
-{
-    <form id="account-form" method="post">
-        <h1 id="account-form-title"></h1>
-
-        <div id="account-warning" hidden></div>
-
-        <div class="input-label">
-            <label for="username">Usuário:</label>
-            <input name="username" type="text" maxlength="32" placeholder="meu_login" />
-        </div>
-
-        <div class="input-label">
-            <label for="password">Senha:</label>
-            <input name="password" type="password" maxlength="32" placeholder="*******" />
-        </div>
-
-        <button type="submit">Pronto!</button>
-	</form>
-}
+@if (!logged) @(await Html.RenderComponentAsync<ReduzYou.Pages.Components.AccountForm>(RenderMode.Static));
 
 @section scripts
 {

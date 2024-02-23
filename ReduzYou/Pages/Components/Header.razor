@@ -1,0 +1,21 @@
+﻿@code {
+    [Parameter]
+    public bool Logged { get; set; }
+}
+
+<header>
+    <a href="/"><img id="header-logo" src="/img/logo.svg" /></a>
+
+    <div id="header-buttons">
+        @if (Logged)
+        {
+            <button class="header-button fill" type="button">Criar</button>
+            <button class="header-button" type="button" onclick="exit()">Sair</button>
+        }
+        else
+        {
+            <button class="header-button fill" id="log" type="button">Entrar</button>
+            <button class="header-button" id="sign" type="button">Cadastrar</button>
+        }
+    </div>
+</header>
