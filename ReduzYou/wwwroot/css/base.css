@@ -10,6 +10,12 @@
 	--font: "Inter", sans-serif;
 }
 
+::selection
+{
+	color: var(--background);
+	background: var(--white);
+}
+
 *
 {
 	font-family: var(--font);
