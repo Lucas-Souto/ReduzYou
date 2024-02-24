@@ -1,3 +1,29 @@
 ﻿@import url("base.css");
 @import url("components/header.css");
 @import url("components/account_form.css");
+
+#slogan
+{
+	text-align: center;
+
+	margin: 2em 0;
+}
+
+#slogan p
+{
+	margin: 0;
+
+	color: var(--white);
+	font-size: 2em;
+	font-style: italic;
+	font-weight: 60;
+}
+
+#slogan hr
+{
+	width: 90%;
+
+	margin-top: 2em;
+
+	border: 1px solid var(--sub-background);
+}

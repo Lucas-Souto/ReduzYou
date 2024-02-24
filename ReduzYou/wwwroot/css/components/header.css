@@ -1,11 +1,12 @@
 ﻿header
 {
+	z-index: 999;
 	display: flex;
+	position: sticky;
+	top: 0;
 	justify-content: space-between;
 	align-items: center;
-
 	padding: 1em;
-	
 	background-color: var(--background);
 	box-shadow: 0px 8px 5px -10px var(--sub-background);
 }
@@ -30,4 +31,25 @@
 .header-button.fill
 {
 	background-color: var(--sub-background);
+}
+
+@media(max-width: 550px)
+{
+	header
+	{
+		gap: 1em;
+		flex-direction: column;
+	}
+
+	#header-buttons
+	{
+		width: 100%;
+		gap: 1em;
+		display: flex;
+	}
+
+	.header-button
+	{
+		flex: 1 1 0px;
+	}
 }

@@ -1,8 +1,10 @@
 ﻿const accountForm = document.getElementById("account-form"),
     accountWarning = document.getElementById("account-warning"),
-    accountFormTitle = document.getElementById("account-form-title");
+    accountFormTitle = document.getElementById("account-form-title"), accountReverse = document.getElementById("account-reverse"),
+    accountFormCancel = document.getElementById("account-cancel");
 const log = document.getElementById("log"), sign = document.getElementById("sign");
 const validUser = /^[a-zA-Z0-9-_]+$/, validPass = /^[a-zA-Z0-9-_!?]+$/;
+const signTitle = "Cadastrar", logTitle = "Entrar";
 
 accountForm.addEventListener("submit", (e) =>
 {
@@ -35,19 +37,26 @@ accountForm.addEventListener("submit", (e) =>
 
 window.addEventListener("click", (e) =>
 {
-    if (accountForm.classList.contains("show") && !accountForm.contains(e.target)) accountForm.classList.remove("show");
-    else if (log.contains(e.target))
+    if ((accountForm.classList.contains("show") && !accountForm.contains(e.target)) || accountFormCancel.contains(e.target))
+    {
+        accountForm.classList.remove("show");
+
+        if (accountFormCancel.contains(e.target)) accountWarning.setAttribute("hidden", true);
+    }
+    else if (log.contains(e.target) || (accountReverse.contains(e.target) && accountFormTitle.innerText == signTitle))
     {
         accountForm.setAttribute("action", "api/enter_account");
         accountForm.classList.add("show");
-
-        accountFormTitle.innerText = "Entrar";
+        
+        accountFormTitle.innerText = logTitle;
+        accountReverse.innerText = "Não tem uma conta?";
     }
-    else if (sign.contains(e.target))
+    else if (sign.contains(e.target) || (accountReverse.contains(e.target) && accountFormTitle.innerText == logTitle))
     {
         accountForm.setAttribute("action", "api/create_account");
         accountForm.classList.add("show");
 
-        accountFormTitle.innerText = "Cadastrar";
+        accountFormTitle.innerText = signTitle;
+        accountReverse.innerText = "Já tem uma conta?";
     }
 });
