@@ -12,20 +12,11 @@
 
 @(await Html.RenderComponentAsync<ReduzYou.Pages.Components.Header>(RenderMode.Static, new { Logged = logged }))
 
-@if (!logged) @(await Html.RenderComponentAsync<ReduzYou.Pages.Components.AccountForm>(RenderMode.Static));
+@if (!logged) @(await Html.RenderComponentAsync<ReduzYou.Pages.Components.AccountForm>(RenderMode.Static))
 
 @section scripts
 {
-    @if (logged)
-    {
-        <script>
-            function exit()
-            {
-                request("api/exit_account", "get", {}, false, () => location.reload());
-            }
-        </script>
-    }
-    else
+    @if (!logged)
     {
         <script type="text/javascript" src="/js/account_form.js" defer></script>
     }

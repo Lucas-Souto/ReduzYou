@@ -25,5 +25,8 @@ body
 {
 	overflow-x: hidden;
 
+	margin: 0;
+	padding: 0;
+
 	background-color: var(--background);
 }

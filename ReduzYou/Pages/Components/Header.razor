@@ -10,7 +10,7 @@
         @if (Logged)
         {
             <button class="header-button fill" type="button">Criar</button>
-            <button class="header-button" type="button" onclick="exit()">Sair</button>
+            <button class="header-button" type="button" onclick="request('api/exit_account', 'get', {}, false, () => location.reload())">Sair</button>
         }
         else
         {
