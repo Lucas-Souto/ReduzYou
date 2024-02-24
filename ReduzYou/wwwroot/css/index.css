@@ -44,16 +44,21 @@
 #filter
 {
 	width: fit-content;
+	flex: 1 1 0px;
+	
+	background-color: var(--sub-background);
+}
+
+#filter-wrapper
+{
 	gap: .5em;
 	display: flex;
 	flex-direction: column;
 
 	padding: 1em;
-
-	background-color: var(--sub-background);
 }
 
-#filter h3
+#filter-wrapper h3
 {
 	margin: 0;
 
@@ -128,6 +133,13 @@
 }
 
 /* Posts */
+main
+{
+	gap: 2em;
+	display: flex;
+	flex-wrap: wrap;
+	flex-grow: 1;
+}
 
 
 /* Responsividade */
