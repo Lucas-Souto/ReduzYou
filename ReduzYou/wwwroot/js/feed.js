@@ -56,8 +56,8 @@ checkAll();
 function addPost(post)
 {
     main.insertAdjacentHTML('beforeend', `
-        <div class="post">
-            <img src=${post.cover} />
+        <a class="post" href="/${post.fullLink}">
+            <img class="post-img" src=${post.cover} />
             <div class="post-bottom">
                 <h3 class="post-title">${post.title}</h3>
                 <div class="post-stars">
@@ -65,11 +65,11 @@ function addPost(post)
                     <img class="star-icon" src="/img/full_star.svg" />
                 </div>
             </div>
-        </div>
+        </a>
     `);
 }
 
-for (let i = 0; i < 30; i++) addPost({ cover: "https://picsum.photos/200/300", title: "Coiso 2", totalValue: 48, starCount: 1 });
+for (let i = 0; i < 30; i++) addPost({ cover: "https://picsum.photos/200/300", fullLink: "meu_login/coiso_2", title: "Coiso 2", totalValue: 48, starCount: 1 });
 
 function getFilterMargin()
 {

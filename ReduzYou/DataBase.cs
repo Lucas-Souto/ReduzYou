@@ -15,7 +15,7 @@ internal static class DataBase
 
             IsConnected = true;
 
-			@"CREATE TABLE IF NOT EXISTS users
+            @"CREATE TABLE IF NOT EXISTS users
             (
                 id VARCHAR(36) PRIMARY KEY,
                 username VARCHAR(32) UNIQUE,
@@ -38,7 +38,7 @@ internal static class DataBase
             (
                 post VARCHAR(36) NOT NULL,
                 user VARCHAR(32) NOT NULL,
-                value UNSIGNED TINYINT NOT NULL,
+                value TINYINT UNSIGNED NOT NULL,
                 FOREIGN KEY (post) REFERENCES posts(id) ON DELETE CASCADE,
                 FOREIGN KEY (user) REFERENCES users(username) ON UPDATE CASCADE ON DELETE CASCADE
             );".Run();
