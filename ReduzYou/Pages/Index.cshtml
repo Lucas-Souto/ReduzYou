@@ -13,14 +13,41 @@
 @(await Html.RenderComponentAsync<ReduzYou.Pages.Components.Header>(RenderMode.Static, new { Logged = logged }))
 
 <div id="slogan">
-    <p>Reduziu, o problema sumiu.</p>
+    <h2>Reduziu, o problema sumiu.</h2>
     <hr />
 </div>
 
 <div id="feed">
-    <aside>
+    <aside id="filter">
+        <h3>Ordenar</h3>
 
+        <fieldset id="order" class="filter-container">
+            <div class="filter-item">
+                <input id="newest" type="radio" value="newest" name="order" checked />
+                <label for="newest">Mais novo</label>
+            </div>
+
+            <div class="filter-item">
+                <input id="oldest" type="radio" value="oldest" name="order" />
+                <label for="oldest">Mais antigo</label>
+            </div>
+
+            <div class="filter-item">
+                <input id="star" type="radio" value="star" name="order" />
+                <label for="star">Melhor nota</label>
+            </div>
+        </fieldset>
+
+        <h3>Materiais</h3>
+
+        <fieldset id="materials" class="filter-container">
+            <div class="filter-item">
+                <input id="all-materials" type="checkbox" />
+                <label for="all-materials">Todos</label>
+            </div>
+        </fieldset>
     </aside>
+
     <main>
 
     </main>
@@ -34,4 +61,6 @@
     {
         <script type="text/javascript" src="/js/account_form.js" defer></script>
     }
+
+    <script type="text/javascript" src="/js/feed.js" defer></script>
 }
