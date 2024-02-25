@@ -1,23 +1,14 @@
 ﻿using MySql.Data.MySqlClient;
+using ReduzYou.Data;
 using System.Text;
 using System.Text.RegularExpressions;
+
+public enum Order { Newest, Oldest, Star }
 
 internal static class DataBase
 {
     public static bool IsConnected { get; private set; }
     private static MySqlConnection? Connection;
-    private static readonly Regex LinkRegex = new Regex("[^a-z0-9_]");
-    private static readonly Dictionary<string, uint> MaterialsValue = new Dictionary<string, uint>()
-    {
-        { "Pet", 1 },
-        { "Papelão", 5 },
-        { "Papel", 10 },
-        { "Tecido", 100 },
-        { "Isopor", 1_000 },
-        { "Vidro", 10_000 },
-        { "Eletrônicos", 100_000 },
-        { "Metal", 1_000_000 }
-    };
 
     public static void Connect(string connectionString)
     {
@@ -114,30 +105,76 @@ internal static class DataBase
     #region Posts
     public static void InsertPost(string author, string title, string content, string cover, string[] tags, DateTime date, bool isDraft)
     {
-        string link = LinkRegex.Replace(title.ToLower().Replace(" ", "_"), "");
-        uint tag = 0;
+        "INSERT INTO posts (id, link, author, title, content, cover, tag, date, isDraft) VALUES (uuid(), @link, @author, @title, @content, @cover, @tag, @date, @isDraft)"
+            .Run(("@link", GetLink(author, Post.MakeLink(title))), ("@author", author), ("@title", title), ("@content", content), 
+                ("@cover", cover), ("@tag", Post.MakeTagValue(tags)), ("@date", date), ("@isDraft", isDraft));
+    }
+    public static void FillFeed(Post[] feed, Order order, string[] tags, long lastTickDate)
+    {
+        int index = 0;
+        StringBuilder sql = new StringBuilder(@"SELECT posts.id, posts.title, posts.author, posts.link, posts.cover, posts.date,
+            count(stars.value) AS starCount, COALESCE(sum(stars.value), 0) AS totalValue FROM posts
+            LEFT JOIN stars ON posts.id = stars.post");
+        string add = string.Empty;
 
-        for (int i = 0; i < tags.Length; i++)
+        if (tags.Length > 0)
         {
-            if (MaterialsValue.TryGetValue(tags[i], out uint value)) tag += value;
+            sql.Append(" WHERE posts.tag = @tag");
+
+            if (lastTickDate != 0) sql.Append(" AND");
+        }
+        else if (lastTickDate != 0) sql.Append(" WHERE");
+
+        switch (order)
+        {
+            case Order.Newest:
+                if (lastTickDate != 0) sql.Append(" posts.date < @lastDate");
+
+                sql.Append($" GROUP BY posts.id ORDER BY posts.date DESC LIMIT @limit");
+                break;
+            case Order.Oldest:
+                if (lastTickDate != 0) sql.Append(" posts.date > @lastDate");
+
+                sql.Append(" GROUP BY posts.id ORDER BY posts.date ASC LIMIT @limit");
+                break;
+            case Order.Star:
+                if (lastTickDate != 0) sql.Append(" posts.date < @lastDate");
+
+                sql.Append(" GROUP BY posts.id ORDER BY starCount DESC LIMIT @limit");
+                break;
         }
 
-        int repeated = RepeatedTitleLink(author, link);
+        sql.ToString().Query((reader) =>
+        {
+            while (reader.Read())
+            {
+                if (index >= feed.Length) return;
 
-        "INSERT INTO posts (id, link, author, title, content, cover, tag, date, isDraft) VALUES (uuid(), @link, @author, @title, @content, @cover, @tag, @date, @isDraft)"
-            .Run(("@link", repeated == 0 ? link : string.Format("{0}{1}", link, repeated)), ("@author", author), ("@title", title), ("@content", content), 
-                ("@cover", cover), ("@tag", tag), ("@date", date), ("@isDraft", isDraft));
+                feed[index] = new Post()
+                {
+                    id = reader.GetString("id"),
+                    title = reader.GetString("title"),
+                    author = reader.GetString("author"),
+                    link = reader.GetString("link"),
+                    cover = reader.GetString("cover"),
+                    dateTicks = reader.GetDateTime("date").Ticks.ToString(),
+                    starCount = reader.GetUInt32("starCount"),
+                    totalValue = reader.GetUInt32("totalValue")
+                };
+                index++;
+            }
+        }, ("@tag", Post.MakeTagValue(tags)), ("@lastDate", new DateTime(lastTickDate)), ("@limit", feed.Length));
     }
-    private static int RepeatedTitleLink(string author, string link)
+    private static string GetLink(string author, string link)
     {
-        int result = 0;
+        int count = 0;
 
         "SELECT count(link) AS repeated FROM posts WHERE author = @author AND link LIKE @start".Query((reader) =>
         {
-            if (reader.Read()) result = reader.GetInt32("repeated");
+            if (reader.Read()) count = reader.GetInt32("repeated");
         }, ("@author", author), ("@start", string.Format("{0}%", link)));
 
-        return result;
+        return count != 0 ? string.Format("{0}{1}", link, count) : link;
     }
     #endregion
 

@@ -5,6 +5,10 @@ const order = document.getElementById("order");
 const materialsCheckList = document.getElementById("materials"), allCheck = document.getElementById("all-materials");
 const main = document.querySelector("main");
 
+let lastTickDate = 0;
+let getMore = true;
+let lastOrder, lastMaterials;
+
 function getOrder()
 {
     const selected = order.querySelector(".filter-item input[type='radio']:checked");
@@ -16,10 +20,12 @@ function getMaterials()
 {
     const result = [];
 
-    for (let i = 0; i < materials.length; i++)
+    if (!allCheck.checked)
     {
-        if (allCheck.checked) result[i] = true;
-        else result[i] = document.getElementById(`material${i}`).checked;
+        for (let i = 0; i < materials.length; i++)
+        {
+            if (document.getElementById(`material${i}`).checked) result.push(materials[i]);
+        }
     }
 
     return result;
@@ -56,7 +62,7 @@ checkAll();
 function addPost(post)
 {
     main.insertAdjacentHTML('beforeend', `
-        <a class="post" href="/${post.fullLink}">
+        <a class="post" href="/${post.author}/${post.link}">
             <img class="post-img" src=${post.cover} />
             <div class="post-bottom">
                 <h3 class="post-title">${post.title}</h3>
@@ -68,8 +74,39 @@ function addPost(post)
         </a>
     `);
 }
+function getMorePosts()
+{
+    if (getMore)
+    {
+        const body = new FormData();
+        const materials = getMaterials();
 
-for (let i = 0; i < 30; i++) addPost({ cover: "https://picsum.photos/200/300", fullLink: "meu_login/coiso_2", title: "Coiso 2", totalValue: 48, starCount: 1 });
+        body.set("order", getOrder());
+        body.set("tags", materials.length > 0 ? materials : ",");
+        body.set("tickDate", lastTickDate);
+
+        request("api/get_feed", "post", body, false, (response) =>
+        {
+            let posts = JSON.parse(response.responseText);
+
+            for (let i = 0; i < posts.length; i++)
+            {
+                if (posts[i] == null)
+                {
+                    getMore = false;
+
+                    break;
+                }
+
+                lastTickDate = posts[i].dateTicks;
+
+                addPost(posts[i]);
+            }
+        });
+    }
+}
+
+getMorePosts();
 
 function getFilterMargin()
 {
@@ -82,4 +119,25 @@ window.addEventListener("scroll", () =>
 {
     if (window.innerWidth > 550) filterWrapper.style["margin-top"] = getFilterMargin();
     else filterWrapper.style["margin-top"] = "unset";
+
+    if (getMore && (window.innerHeight + window.scrollY) >= document.body.offsetHeight) getMorePosts();
+});
+
+lastOrder = getOrder();
+lastMaterials = getMaterials();
+
+filterWrapper.addEventListener("click", () =>
+{
+    const testOrder = getOrder(), testMaterials = getMaterials();
+
+    if (testOrder != lastOrder || testMaterials != lastMaterials)
+    {
+        lastOrder = testOrder;
+        lastMaterials = testMaterials;
+        main.innerHTML = "";
+        lastTickDate = 0;
+        getMore = true;
+
+        getMorePosts();
+    }
 });
