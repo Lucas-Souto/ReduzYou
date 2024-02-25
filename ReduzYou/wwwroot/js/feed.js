@@ -61,7 +61,7 @@ function addPost(post)
             <div class="post-bottom">
                 <h3 class="post-title">${post.title}</h3>
                 <div class="post-stars">
-                    <h4 class="star-number">${(post.totalValue / post.starCount) / 10}</h4>
+                    <h4 class="star-number">${post.starCount == 0 ? 0 : (post.totalValue / post.starCount) / 10}</h4>
                     <img class="star-icon" src="/img/full_star.svg" />
                 </div>
             </div>

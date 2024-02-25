@@ -1,9 +1,23 @@
 ﻿using MySql.Data.MySqlClient;
+using System.Text;
+using System.Text.RegularExpressions;
 
 internal static class DataBase
 {
     public static bool IsConnected { get; private set; }
     private static MySqlConnection? Connection;
+    private static readonly Regex LinkRegex = new Regex("[^a-z0-9_]");
+    private static readonly Dictionary<string, uint> MaterialsValue = new Dictionary<string, uint>()
+    {
+        { "Pet", 1 },
+        { "Papelão", 5 },
+        { "Papel", 10 },
+        { "Tecido", 100 },
+        { "Isopor", 1_000 },
+        { "Vidro", 10_000 },
+        { "Eletrônicos", 100_000 },
+        { "Metal", 1_000_000 }
+    };
 
     public static void Connect(string connectionString)
     {
@@ -29,7 +43,7 @@ internal static class DataBase
                 title VARCHAR(64) NOT NULL,
                 content LONGTEXT NOT NULL,
                 cover VARCHAR(255),
-                tags VARCHAR(80) NOT NULL,
+                tag VARCHAR(20) NOT NULL,
                 date DATETIME,
                 isDraft BOOLEAN NOT NULL DEFAULT 1,
                 FOREIGN KEY (author) REFERENCES users(username) ON UPDATE CASCADE ON DELETE CASCADE
@@ -98,7 +112,33 @@ internal static class DataBase
     }
     #endregion
     #region Posts
+    public static void InsertPost(string author, string title, string content, string cover, string[] tags, DateTime date, bool isDraft)
+    {
+        string link = LinkRegex.Replace(title.ToLower().Replace(" ", "_"), "");
+        uint tag = 0;
 
+        for (int i = 0; i < tags.Length; i++)
+        {
+            if (MaterialsValue.TryGetValue(tags[i], out uint value)) tag += value;
+        }
+
+        int repeated = RepeatedTitleLink(author, link);
+
+        "INSERT INTO posts (id, link, author, title, content, cover, tag, date, isDraft) VALUES (uuid(), @link, @author, @title, @content, @cover, @tag, @date, @isDraft)"
+            .Run(("@link", repeated == 0 ? link : string.Format("{0}{1}", link, repeated)), ("@author", author), ("@title", title), ("@content", content), 
+                ("@cover", cover), ("@tag", tag), ("@date", date), ("@isDraft", isDraft));
+    }
+    private static int RepeatedTitleLink(string author, string link)
+    {
+        int result = 0;
+
+        "SELECT count(link) AS repeated FROM posts WHERE author = @author AND link LIKE @start".Query((reader) =>
+        {
+            if (reader.Read()) result = reader.GetInt32("repeated");
+        }, ("@author", author), ("@start", string.Format("{0}%", link)));
+
+        return result;
+    }
     #endregion
 
     private static int Run(this string sql, params (string name, object value)[] args)

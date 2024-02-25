@@ -168,10 +168,14 @@ main
 	width: 300px;
 	aspect-ratio: 1 / 1;
 	object-fit: cover;
+
+	background-color: var(--background);
 }
 
 .post-bottom
 {
+	gap: 1em;
+	width: 100%;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -250,12 +254,6 @@ a:link
 	.post:hover .post-img
 	{
 		width: 200px;
-	}
-
-	.post-bottom
-	{
-		gap: 1em;
-		width: 100%;
 	}
 
 	.post-title

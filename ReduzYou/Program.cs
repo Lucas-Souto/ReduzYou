@@ -1,6 +1,7 @@
 var builder = WebApplication.CreateBuilder(args);
 
 DataBase.Connect($"server=127.0.0.1;uid=root;pwd={builder.Configuration["DB:Pass"]};database=reduzyou");
+
 // Add services to the container.
 builder.Services.AddRazorPages();
 
