@@ -15,7 +15,6 @@ function getOrder()
 
     return selected.value;
 }
-
 function getMaterials()
 {
     const result = [];
@@ -31,20 +30,6 @@ function getMaterials()
     return result;
 }
 
-for (let i = 0; i < materials.length; i++)
-{
-    const id = `material${i}`;
-
-    materialsCheckList.insertAdjacentHTML('beforeend', `
-        <div class="filter-item">
-            <input id="${id}" type="checkbox" />
-            <label for="${id}">${materials[i]}</label>
-        </div>
-    `);
-}
-
-allCheck.checked = true;
-
 function checkAll()
 {
     for (let i = 0; i < materials.length; i++)
@@ -55,9 +40,6 @@ function checkAll()
         else material.removeAttribute("disabled");
     }
 }
-
-allCheck.addEventListener("click", checkAll);
-checkAll();
 
 function addPost(post)
 {
@@ -106,15 +88,12 @@ function getMorePosts()
     }
 }
 
-getMorePosts();
-
 function getFilterMargin()
 {
     return Math.max(0, window.scrollY - filterTop + headerHeight).toString() + "px";
 }
 
-filterWrapper.style["margin-top"] = getFilterMargin();
-
+allCheck.addEventListener("click", checkAll);
 window.addEventListener("scroll", () =>
 {
     if (window.innerWidth > 550) filterWrapper.style["margin-top"] = getFilterMargin();
@@ -122,10 +101,6 @@ window.addEventListener("scroll", () =>
 
     if (getMore && (window.innerHeight + window.scrollY) >= document.body.offsetHeight) getMorePosts();
 });
-
-lastOrder = getOrder();
-lastMaterials = getMaterials();
-
 filterWrapper.addEventListener("click", () =>
 {
     const testOrder = getOrder(), testMaterials = getMaterials();
@@ -141,3 +116,22 @@ filterWrapper.addEventListener("click", () =>
         getMorePosts();
     }
 });
+
+filterWrapper.style["margin-top"] = getFilterMargin();
+lastOrder = getOrder();
+lastMaterials = getMaterials();
+
+for (let i = 0; i < materials.length; i++)
+{
+    const id = `material${i}`;
+
+    materialsCheckList.insertAdjacentHTML('beforeend', `
+        <div class="filter-item">
+            <input id="${id}" type="checkbox" />
+            <label for="${id}">${materials[i]}</label>
+        </div>
+    `);
+}
+
+checkAll();
+getMorePosts();

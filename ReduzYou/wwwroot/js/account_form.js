@@ -34,7 +34,6 @@ accountForm.addEventListener("submit", (e) =>
     if (accountWarning.innerHTML.length == 0) accountWarning.setAttribute("hidden", true);
     else accountWarning.removeAttribute("hidden");
 });
-
 window.addEventListener("click", (e) =>
 {
     if ((accountForm.classList.contains("show") && !accountForm.contains(e.target)) || accountFormCancel.contains(e.target))

@@ -1,4 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
+using ReduzYou.Controllers;
 using ReduzYou.Data;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -29,10 +30,10 @@ internal static class DataBase
             CREATE TABLE IF NOT EXISTS posts
             (
                 id VARCHAR(36) PRIMARY KEY,
-                link VARCHAR(255) NOT NULL,
+                link VARCHAR(255),
                 author VARCHAR(32) NOT NULL,
-                title VARCHAR(64) NOT NULL,
-                content LONGTEXT NOT NULL,
+                title VARCHAR(64),
+                content LONGTEXT,
                 cover VARCHAR(255),
                 tag VARCHAR(20) NOT NULL,
                 date DATETIME,
@@ -46,7 +47,15 @@ internal static class DataBase
                 value TINYINT UNSIGNED NOT NULL,
                 FOREIGN KEY (post) REFERENCES posts(id) ON DELETE CASCADE,
                 FOREIGN KEY (user) REFERENCES users(username) ON UPDATE CASCADE ON DELETE CASCADE
-            );".Run();
+            );
+            CREATE TABLE IF NOT EXISTS images
+            (
+                id VARCHAR(64) PRIMARY KEY,
+                userId VARCHAR(36) NOT NULL,
+                postId VARCHAR(36) NOT NULL,
+                FOREIGN KEY (userId) REFERENCES users(id),
+                FOREIGN KEY (postId) REFERENCES posts(id)
+            )".Run();
         }
         catch (MySqlException e)
         {
@@ -114,31 +123,26 @@ internal static class DataBase
         int index = 0;
         StringBuilder sql = new StringBuilder(@"SELECT posts.id, posts.title, posts.author, posts.link, posts.cover, posts.date,
             count(stars.value) AS starCount, COALESCE(sum(stars.value), 0) AS totalValue FROM posts
-            LEFT JOIN stars ON posts.id = stars.post");
+            LEFT JOIN stars ON posts.id = stars.post
+            WHERE isDraft = 0");
         string add = string.Empty;
 
-        if (tags.Length > 0)
-        {
-            sql.Append(" WHERE posts.tag = @tag");
-
-            if (lastTickDate != 0) sql.Append(" AND");
-        }
-        else if (lastTickDate != 0) sql.Append(" WHERE");
+        if (tags.Length > 0) sql.Append(" AND posts.tag = @tag");
 
         switch (order)
         {
             case Order.Newest:
-                if (lastTickDate != 0) sql.Append(" posts.date < @lastDate");
+                if (lastTickDate != 0) sql.Append(" AND posts.date < @lastDate");
 
                 sql.Append($" GROUP BY posts.id ORDER BY posts.date DESC LIMIT @limit");
                 break;
             case Order.Oldest:
-                if (lastTickDate != 0) sql.Append(" posts.date > @lastDate");
+                if (lastTickDate != 0) sql.Append(" AND posts.date > @lastDate");
 
                 sql.Append(" GROUP BY posts.id ORDER BY posts.date ASC LIMIT @limit");
                 break;
             case Order.Star:
-                if (lastTickDate != 0) sql.Append(" posts.date < @lastDate");
+                if (lastTickDate != 0) sql.Append(" AND posts.date < @lastDate");
 
                 sql.Append(" GROUP BY posts.id ORDER BY starCount DESC LIMIT @limit");
                 break;
@@ -164,6 +168,44 @@ internal static class DataBase
                 index++;
             }
         }, ("@tag", Post.MakeTagValue(tags)), ("@lastDate", new DateTime(lastTickDate)), ("@limit", feed.Length));
+    }
+    public static Post FindDraft(string username)
+    {
+        Post result = null;
+
+        "SELECT id, title, content, cover, tag FROM posts WHERE author = @author AND isDraft = 1".Query((reader) =>
+        {
+            if (reader.Read())
+            {
+                result = new Post()
+                {
+                    isDraft = true,
+                    id = reader.GetString("id"),
+                    title = reader.IsDBNull(reader.GetOrdinal("title")) ? "" : reader.GetString("title"),
+                    content = reader.IsDBNull(reader.GetOrdinal("content")) ? "" : reader.GetString("content"),
+                    cover = reader.IsDBNull(reader.GetOrdinal("cover")) ? "" : reader.GetString("cover"),
+                    tags = GetTags(Convert.ToInt32(reader.GetString("tag")))
+                };
+            }
+        }, ("@author", username));
+
+        return result;
+    }
+    private static List<string> GetTags(int tagValue)
+    {
+        List<string> tags = new List<string>();
+
+        foreach (KeyValuePair<string, int> pair in Post.MaterialsValue)
+        {
+            if (tagValue - pair.Value >= 0)
+            {
+                tagValue -= pair.Value;
+
+                tags.Add(pair.Key);
+            }
+        }
+
+        return tags;
     }
     private static string GetLink(string author, string link)
     {

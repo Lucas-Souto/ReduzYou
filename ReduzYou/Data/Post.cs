@@ -3,18 +3,21 @@ using System.Text.RegularExpressions;
 
 namespace ReduzYou.Data
 {
-    public class Post
+    internal class Post
     {
-        public static readonly Dictionary<string, uint> MaterialsValue = new Dictionary<string, uint>()
+        /// <summary>
+        /// Valores de cada tag em ordem reversa (para <see cref="GetTags(int)"/>).
+        /// </summary>
+        public static readonly Dictionary<string, int> MaterialsValue = new Dictionary<string, int>()
         {
-            { "Pet", 1 },
-            { "Papelão", 5 },
-            { "Papel", 10 },
-            { "Tecido", 100 },
-            { "Isopor", 500 },
-            { "Vidro", 1_000 },
+            { "Metal", 10_000 },
             { "Eletrônicos", 5_000 },
-            { "Metal", 10_000 }
+            { "Vidro", 1_000 },
+            { "Isopor", 500 },
+            { "Tecido", 100 },
+            { "Papel", 10 },
+            { "Papelão", 5 },
+            { "Pet", 1 }
         };
         private static readonly Regex LinkRegex = new Regex("[^a-z0-9_]");
         public bool isDraft { get; set; }
@@ -27,19 +30,35 @@ namespace ReduzYou.Data
         public string link { get; set; }
         public string content { get; set; }
         public string cover { get; set; }
-        public string[] tags { get; set; }
+        public List<string> tags { get; set; }
 
         public static string MakeLink(string title) => LinkRegex.Replace(title.ToLower().Replace(" ", "_"), "");
-        public static uint MakeTagValue(string[] tags)
+        public static int MakeTagValue(string[] tags)
         {
-            uint tag = 0;
+            int tag = 0;
 
             for (int i = 0; i < tags.Length; i++)
             {
-                if (MaterialsValue.TryGetValue(tags[i], out uint value)) tag += value;
+                if (MaterialsValue.TryGetValue(tags[i], out int value)) tag += value;
             }
 
             return tag;
+        }
+        public static List<string> GetTags(int tagValue)
+        {
+            List<string> tags = new List<string>();
+
+            foreach (KeyValuePair<string, int> pair in Post.MaterialsValue)
+            {
+                if (tagValue - pair.Value >= 0)
+                {
+                    tagValue -= pair.Value;
+
+                    tags.Add(pair.Key);
+                }
+            }
+
+            return tags;
         }
     }
 }

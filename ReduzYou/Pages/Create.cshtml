@@ -1,0 +1,14 @@
+﻿@page "/create"
+@model ReduzYou.Pages.CreateModel
+@{
+    ViewData["Title"] = "- Criar";
+    bool logged = !string.IsNullOrEmpty(HttpContext.Session.GetString("_Id"));
+    ReduzYou.Data.Post post = null;
+
+    if (!logged) Response.Redirect("/");
+    else post = DataBase.FindDraft(HttpContext.Session.GetString("_Username"));
+}
+
+<form id="create-post" method="post">
+
+</form>
