@@ -12,10 +12,13 @@ addImages.addEventListener("submit", (e) =>
 
     const formData = new FormData(addImages);
     
-    request("api/save_image", "post", formData, false, (request) => addMoreImages([request.responseText]));
+    request("api/save_image", "post", formData, false, (request) =>
+    {
+        addMoreImages([request.responseText]);
+        selectCallback(request.responseText);
+    });
 
     addImages.reset();
-    selectCallback(link);
     imageSelector.classList.remove("show");
 });
 
