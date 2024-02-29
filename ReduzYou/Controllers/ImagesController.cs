@@ -18,7 +18,8 @@ namespace ReduzYou.Controllers
             string userId = DataBase.GetUserId(Request.RouteValues["username"].ToString());
             string path = string.Format("Images/{0}/{1}", userId, Request.RouteValues["link"].ToString());
 
-            return new FileStreamResult(new System.IO.FileStream(path, FileMode.Open), "image/jpeg");
+            if (System.IO.File.Exists(path)) return new FileStreamResult(new System.IO.FileStream(path, FileMode.Open), "image/jpeg");
+            else return NotFound();
         }
         [HttpPost]
         [ActionName("get_images")]
