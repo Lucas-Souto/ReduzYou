@@ -25,9 +25,9 @@ namespace ReduzYou.Controllers
         public IEnumerable<string> GetImages()
         {
             List<string> links = new List<string>();
-            string userId = HttpContext.Session.GetString("_Id");
+            string userId = HttpContext.Session.GetString("_Id"), username = HttpContext.Session.GetString("_Username");
 
-            if (!string.IsNullOrEmpty(userId)) DataBase.GetImagesLink(links, userId);
+            if (!string.IsNullOrEmpty(userId) && !string.IsNullOrEmpty(username)) DataBase.GetImagesLink(links, userId, username);
 
             return links;
         }

@@ -1,4 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
+using NuGet.Protocol.Plugins;
 using ReduzYou.Controllers;
 using ReduzYou.Data;
 using System.Text;
@@ -8,18 +9,13 @@ public enum Order { Newest, Oldest, Star }
 
 internal static class DataBase
 {
-    public static bool IsConnected { get; private set; }
-    private static MySqlConnection? Connection;
+    private static string ConnectionString;
 
-    public static void Connect(string connectionString)
+    public static void Initialize(string connectionString)
     {
         try
         {
-            Connection = new MySqlConnection(connectionString);
-
-            Connection.Open();
-
-            IsConnected = true;
+            ConnectionString = connectionString;
 
             @"CREATE TABLE IF NOT EXISTS users
             (
@@ -59,15 +55,6 @@ internal static class DataBase
         {
             Console.WriteLine(e.Message);
         }
-    }
-    public static void Disconnect()
-    {
-        if (!IsConnected) return;
-
-        Connection?.Close();
-
-        IsConnected = false;
-        Connection = null;
     }
 
     #region Users
@@ -215,32 +202,38 @@ internal static class DataBase
 
         return id;
     }
-    public static void GetImagesLink(List<string> links, string userId)
+    public static void GetImagesLink(List<string> links, string userId, string username)
     {
         "SELECT id FROM images WHERE userId = @userId".Query((reader) =>
         {
-            while (reader.Read()) links.Add(string.Format(ImagesController.FrontImageFormat, userId, reader.GetString("id")));
+            while (reader.Read()) links.Add(string.Format(ImagesController.FrontImageFormat, username, reader.GetString("id")));
         }, ("@userId", userId));
     }
     #endregion
 
     private static int Run(this string sql, params (string name, object value)[] args)
     {
-        if (!IsConnected) return 0;
+        MySqlConnection connection = new MySqlConnection(ConnectionString);
 
-        MySqlCommand command = new MySqlCommand(sql, Connection);
+        connection.Open();
+
+        MySqlCommand command = new MySqlCommand(sql, connection);
 
         for (int i = 0; i < args.Length; i++) command.Parameters.AddWithValue(args[i].name, args[i].value);
 
         int rows = command.ExecuteNonQuery();
 
+        connection.Close();
+
         return rows;
     }
     private static void Query(this string sql, Action<MySqlDataReader> callback, params (string name, object value)[] args)
     {
-        if (!IsConnected) return;
+        MySqlConnection connection = new MySqlConnection(ConnectionString);
 
-        MySqlCommand command = new MySqlCommand(sql, Connection);
+        connection.Open();
+
+        MySqlCommand command = new MySqlCommand(sql, connection);
 
         for (int i = 0; i < args.Length; i++) command.Parameters.AddWithValue(args[i].name, args[i].value);
 
@@ -248,5 +241,6 @@ internal static class DataBase
 
         callback?.Invoke(reader);
         reader.Close();
+        connection.Close();
     }
 }
