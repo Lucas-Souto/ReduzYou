@@ -2,28 +2,34 @@
 @model ReduzYou.Pages.CreateModel
 @{
     ViewData["Title"] = "- Criar";
-    bool logged = !string.IsNullOrEmpty(HttpContext.Session.GetString("_Id"));
+    string username = HttpContext.Session.GetString("_Username");
+    bool logged = !string.IsNullOrEmpty(HttpContext.Session.GetString("_Id")) && !string.IsNullOrEmpty(username);
     ReduzYou.Data.Post post = null;
 
     if (!logged) Response.Redirect("/");
     else
     {
-        if (Model.PostId.Length == 0)
-        {
-            post = DataBase.FindDraft(HttpContext.Session.GetString("_Username"));
+        if (Model.PostLink.Length == 0) post = DataBase.FindDraft(username);
+        else post = DataBase.GetPostEdit(username, Model.PostLink);
 
-            if (post == null) post = new ReduzYou.Data.Post();
-        }
+        if (post == null) post = new ReduzYou.Data.Post();
     }
 }
 
+@section styles
+{
+    <link rel="stylesheet" href="/css/create.css" />
+}
+
+@(await Html.RenderComponentAsync<ReduzYou.Pages.Components.Header>(RenderMode.Static, new { Logged = logged }))
+
 <div id="image-selector">
     <form id="add-images" method="post" enctype="multipart/form-data">
-        <input id="images" name="images" type="file" accept="image/png, image/jpeg" multiple />
+        <input id="image-upload" name="imageUpload" type="file" accept="image/png, image/jpeg" />
     </form>
 </div>
 
 @section scripts
 {
-    <script type="text/javascript" src="/js/create/image_form.js" defer></script>
+    <script type="text/javascript" src="/js/create/image_selector.js" defer></script>
 }

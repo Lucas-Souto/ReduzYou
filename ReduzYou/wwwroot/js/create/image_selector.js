@@ -1,9 +1,9 @@
 ﻿const addImages = document.getElementById("add-images"),
-    images = document.getElementById("images");
+    imageUpload = document.getElementById("image-upload");
 const imageSelector = document.getElementById("image-selector");
 const availableImages = [];
 
-images.addEventListener("change", () => addImages.requestSubmit());
+imageUpload.addEventListener("change", () => addImages.requestSubmit());
 
 addImages.addEventListener("submit", (e) =>
 {
@@ -11,7 +11,7 @@ addImages.addEventListener("submit", (e) =>
 
     const formData = new FormData(addImages);
     
-    request("api/save_image", "post", formData, false, (request) => addMoreImages(JSON.parse(request.responseText)));
+    request("api/save_image", "post", formData, false, (request) => addMoreImages([request.responseText]));
 
     addImages.reset();
 });
@@ -23,6 +23,6 @@ function addMoreImages(images = [])
     for (let i = 0; i < images.length; i++)
     {
         availableImages.push(images[i]);
-        imageSelector.insertAdjacentHTML('beforeend', `<img src="${images[i]}" />`);
+        imageSelector.insertAdjacentHTML('beforeend', `<img class="selector-item" src="${images[i]}" />`);
     }
 }

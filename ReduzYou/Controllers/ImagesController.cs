@@ -33,35 +33,29 @@ namespace ReduzYou.Controllers
         }
         [HttpPost]
         [ActionName("save_image")]
-        public IEnumerable<string> SaveImage(IEnumerable<IFormFile> images)
+        public string SaveImage(IFormFile imageUpload)
         {
             string userId = HttpContext.Session.GetString("_Id"), username = HttpContext.Session.GetString("_Username");
-            List<string> links = new List<string>();
-            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(username)) return links;
 
-            string extension;
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(username)) return string.Empty;
 
-            foreach (IFormFile file in images)
-            {
-                extension = file.FileName.ToLower().Split('.').Last();
+            string extension = imageUpload.FileName.ToLower().Split('.').Last();
 
-                if (extension != "png" && extension != "jpg" && extension != "jpeg") continue;
+            if (extension != "png" && extension != "jpg" && extension != "jpeg") return string.Empty;
 
-                Image image = Image.FromStream(file.OpenReadStream());
-                Bitmap resized = image.Width > 1000 || image.Height > 1000 ? new Bitmap(image, GetClampedSize(image.Size)) : new Bitmap(image);
-                string directory = string.Format("Images/{0}", userId);
+            Image image = Image.FromStream(imageUpload.OpenReadStream());
+            Bitmap resized = image.Width > 1000 || image.Height > 1000 ? new Bitmap(image, GetClampedSize(image.Size)) : new Bitmap(image);
+            string directory = string.Format("Images/{0}", userId);
 
-                if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);
+            if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);
 
-                string id = DataBase.InsertImage(userId);
-                System.IO.FileStream stream = System.IO.File.Create(string.Format("{0}/{1}.jpg", directory, id));
+            string id = DataBase.InsertImage(userId);
+            System.IO.FileStream stream = System.IO.File.Create(string.Format("{0}/{1}.jpg", directory, id));
 
-                resized.Save(stream, ImageFormat.Jpeg);
-                stream.Close();
-                links.Add(string.Format(FrontImageFormat, username, id));
-            }
+            resized.Save(stream, ImageFormat.Jpeg);
+            stream.Close();
 
-            return links;
+            return string.Format(FrontImageFormat, username, id);
         }
         [NonAction]
         private Size GetClampedSize(Size originalSize)

@@ -158,14 +158,14 @@ internal static class DataBase
     {
         Post result = null;
 
-        "SELECT id, title, content, cover, tag FROM posts WHERE author = @author AND isDraft = 1".Query((reader) =>
+        "SELECT link, title, content, cover, tag FROM posts WHERE author = @author AND isDraft = 1".Query((reader) =>
         {
             if (reader.Read())
             {
                 result = new Post()
                 {
                     isDraft = true,
-                    id = reader.GetString("id"),
+                    link = reader.GetString("link"),
                     title = reader.IsDBNull(reader.GetOrdinal("title")) ? "" : reader.GetString("title"),
                     content = reader.IsDBNull(reader.GetOrdinal("content")) ? "" : reader.GetString("content"),
                     cover = reader.IsDBNull(reader.GetOrdinal("cover")) ? "" : reader.GetString("cover"),
@@ -173,6 +173,28 @@ internal static class DataBase
                 };
             }
         }, ("@author", username));
+
+        return result;
+    }
+    public static Post GetPostEdit(string author, string link)
+    {
+        Post result = null;
+
+        "SELECT title, content, cover, tag, isDraft FROM posts WHERE author = @author AND link = @link".Query((reader) =>
+        {
+            if (reader.Read())
+            {
+                result = new Post()
+                {
+                    link = link,
+                    title = reader.GetString("title"),
+                    content = reader.GetString("content"),
+                    cover = reader.GetString("cover"),
+                    tags = Post.GetTags(Convert.ToInt32(reader.GetString("tag"))),
+                    isDraft = reader.GetBoolean("isDraft")
+                };
+            }
+        }, ("@author", author), ("@link", link));
 
         return result;
     }

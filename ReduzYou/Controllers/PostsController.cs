@@ -26,7 +26,7 @@ namespace ReduzYou.Controllers
         }
         [HttpPost]
         [ActionName("post_save")]
-        public byte PostSave([FromForm] string coverId, [FromForm] string postId, [FromForm] string title, [FromForm] string action)
+        public byte PostSave([FromForm] string title, [FromForm] string action)
         {
             string username = HttpContext.Session.GetString("_Username");
 
