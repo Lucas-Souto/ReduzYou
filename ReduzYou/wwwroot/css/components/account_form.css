@@ -36,7 +36,7 @@
 {
 	padding: 1em;
 
-	border: 2px solid #E2083D;
+	border: 2px solid var(--main2);
 	border-radius: 10px;
 }
 
