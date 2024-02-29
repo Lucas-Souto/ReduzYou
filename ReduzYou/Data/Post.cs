@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace ReduzYou.Data
 {
-    internal class Post
+    public class Post
     {
         /// <summary>
         /// Valores de cada tag em ordem reversa (para <see cref="GetTags(int)"/>).

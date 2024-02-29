@@ -21,7 +21,7 @@ namespace ReduzYou.Controllers
             else
             {
                 DataBase.InsertUser(username, password);
-                CreateSection(DataBase.GetId(username), username);
+                CreateSection(DataBase.GetUserId(username), username);
 
                 return 1;
             }

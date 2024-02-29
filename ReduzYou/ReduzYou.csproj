@@ -7,6 +7,14 @@
     <UserSecretsId>f68e0025-7173-4f16-84cc-673c31214423</UserSecretsId>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <WarningLevel>0</WarningLevel>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <WarningLevel>0</WarningLevel>
+  </PropertyGroup>
+
   <ItemGroup>
     <Content Remove="wwwroot\css\base.css" />
     <Content Remove="wwwroot\css\normalize.css" />

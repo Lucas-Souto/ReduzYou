@@ -1,4 +1,4 @@
-﻿@page "/create"
+﻿@page "/create/{post?}"
 @model ReduzYou.Pages.CreateModel
 @{
     ViewData["Title"] = "- Criar";
@@ -6,9 +6,22 @@
     ReduzYou.Data.Post post = null;
 
     if (!logged) Response.Redirect("/");
-    else post = DataBase.FindDraft(HttpContext.Session.GetString("_Username"));
+    else
+    {
+        if (Model.PostId.Length == 0)
+        {
+            post = DataBase.FindDraft(HttpContext.Session.GetString("_Username"));
+
+            if (post == null) post = new ReduzYou.Data.Post();
+        }
+    }
 }
 
-<form id="create-post" method="post">
-
+<form id="add-images" method="post" enctype="multipart/form-data">
+    <input id="images" name="images" type="file" accept="image/png, image/jpeg" multiple />
 </form>
+
+@section scripts
+{
+    <script type="text/javascript" src="/js/create/image_form.js" defer></script>
+}

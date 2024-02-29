@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.ComponentModel.DataAnnotations;
 using ReduzYou.Data;
 
@@ -21,6 +23,16 @@ namespace ReduzYou.Controllers
             DataBase.FillFeed(posts, parsedOrder, tags.Length == 1 ? Array.Empty<string>() : tags.Split(','), long.Parse(tickDate));
 
             return posts;
+        }
+        [HttpPost]
+        [ActionName("post_save")]
+        public byte PostSave([FromForm] string coverId, [FromForm] string postId, [FromForm] string title, [FromForm] string action)
+        {
+            string username = HttpContext.Session.GetString("_Username");
+
+            if (string.IsNullOrEmpty(username)) return 0;
+
+            return 0;
         }
     }
 }

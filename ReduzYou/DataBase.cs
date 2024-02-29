@@ -30,13 +30,13 @@ internal static class DataBase
             CREATE TABLE IF NOT EXISTS posts
             (
                 id VARCHAR(36) PRIMARY KEY,
-                link VARCHAR(255),
+                link VARCHAR(255) NOT NULL,
                 author VARCHAR(32) NOT NULL,
-                title VARCHAR(64),
-                content LONGTEXT,
-                cover VARCHAR(255),
+                title VARCHAR(64) NOT NULL,
+                content LONGTEXT NOT NULL,
+                cover VARCHAR(255) NOT NULL,
                 tag VARCHAR(20) NOT NULL,
-                date DATETIME,
+                date DATETIME NOT NULL,
                 isDraft BOOLEAN NOT NULL DEFAULT 1,
                 FOREIGN KEY (author) REFERENCES users(username) ON UPDATE CASCADE ON DELETE CASCADE
             );
@@ -50,11 +50,9 @@ internal static class DataBase
             );
             CREATE TABLE IF NOT EXISTS images
             (
-                id VARCHAR(64) PRIMARY KEY,
+                id VARCHAR(64) NOT NULL,
                 userId VARCHAR(36) NOT NULL,
-                postId VARCHAR(36) NOT NULL,
-                FOREIGN KEY (userId) REFERENCES users(id),
-                FOREIGN KEY (postId) REFERENCES posts(id)
+                FOREIGN KEY (userId) REFERENCES users(id)
             )".Run();
         }
         catch (MySqlException e)
@@ -99,7 +97,7 @@ internal static class DataBase
 
         return result;
     }
-    public static string GetId(string username)
+    public static string GetUserId(string username)
     {
         string result = string.Empty;
 
@@ -184,28 +182,12 @@ internal static class DataBase
                     title = reader.IsDBNull(reader.GetOrdinal("title")) ? "" : reader.GetString("title"),
                     content = reader.IsDBNull(reader.GetOrdinal("content")) ? "" : reader.GetString("content"),
                     cover = reader.IsDBNull(reader.GetOrdinal("cover")) ? "" : reader.GetString("cover"),
-                    tags = GetTags(Convert.ToInt32(reader.GetString("tag")))
+                    tags = Post.GetTags(Convert.ToInt32(reader.GetString("tag")))
                 };
             }
         }, ("@author", username));
 
         return result;
-    }
-    private static List<string> GetTags(int tagValue)
-    {
-        List<string> tags = new List<string>();
-
-        foreach (KeyValuePair<string, int> pair in Post.MaterialsValue)
-        {
-            if (tagValue - pair.Value >= 0)
-            {
-                tagValue -= pair.Value;
-
-                tags.Add(pair.Key);
-            }
-        }
-
-        return tags;
     }
     private static string GetLink(string author, string link)
     {
@@ -217,6 +199,28 @@ internal static class DataBase
         }, ("@author", author), ("@start", string.Format("{0}%", link)));
 
         return count != 0 ? string.Format("{0}{1}", link, count) : link;
+    }
+    #endregion
+    #region Images
+    public static string InsertImage(string userId)
+    {
+        string id = "0";
+        
+        "SELECT COUNT(id) AS imageCount FROM images WHERE userId = @userId".Query((reader) =>
+        {
+            if (reader.Read()) id = reader.GetUInt64("imageCount").ToString();
+        }, ("@userId", userId));
+
+        "INSERT INTO images (id, userId) VALUES(@id, @userId)".Run(("@id", id), ("@userId", userId));
+
+        return id;
+    }
+    public static void GetImagesLink(List<string> links, string userId)
+    {
+        "SELECT id FROM images WHERE userId = @userId".Query((reader) =>
+        {
+            while (reader.Read()) links.Add(string.Format(ImagesController.FrontImageFormat, userId, reader.GetString("id")));
+        }, ("@userId", userId));
     }
     #endregion
 
