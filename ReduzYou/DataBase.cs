@@ -29,7 +29,7 @@ internal static class DataBase
                 link VARCHAR(255) NOT NULL,
                 author VARCHAR(32) NOT NULL,
                 title VARCHAR(64) NOT NULL,
-                content LONGTEXT NOT NULL,
+                content TEXT NOT NULL,
                 cover VARCHAR(255) NOT NULL,
                 tag VARCHAR(20) NOT NULL,
                 date DATETIME NOT NULL,
@@ -102,6 +102,20 @@ internal static class DataBase
         "INSERT INTO posts (id, link, author, title, content, cover, tag, date, isDraft) VALUES (uuid(), @link, @author, @title, @content, @cover, @tag, @date, @isDraft)"
             .Run(("@link", GetLink(author, Post.MakeLink(title))), ("@author", author), ("@title", title), ("@content", content), 
                 ("@cover", cover), ("@tag", Post.MakeTagValue(tags)), ("@date", date), ("@isDraft", isDraft));
+    }
+    public static void UpdatePost(string author, string originalLink, string title, string content, string cover, string[] tags, DateTime date, bool isDraft)
+    {
+        @"UPDATE posts SET
+            link = @link,
+            title = @title,
+            content = @content,
+            cover = @cover,
+            tag = @tag,
+            date = @date,
+            isDraft = @isDraft
+            WHERE author = @author AND link = @originalLink"
+            .Run(("@author", author), ("@originalLink", originalLink), ("@link", Post.MakeLink(title)), ("@title", title), ("@content", content), ("@cover", cover), ("@tag", Post.MakeTagValue(tags)), 
+                ("@date", date), ("@isDraft", isDraft));
     }
     public static void FillFeed(Post[] feed, Order order, string[] tags, long lastTickDate)
     {
@@ -180,7 +194,7 @@ internal static class DataBase
     {
         Post result = null;
 
-        "SELECT title, content, cover, tag, isDraft FROM posts WHERE author = @author AND link = @link".Query((reader) =>
+        "SELECT title, content, cover, tag, date, isDraft FROM posts WHERE author = @author AND link = @link".Query((reader) =>
         {
             if (reader.Read())
             {
@@ -191,6 +205,7 @@ internal static class DataBase
                     content = reader.GetString("content"),
                     cover = reader.GetString("cover"),
                     tags = Post.GetTags(Convert.ToInt32(reader.GetString("tag"))),
+                    dateTicks = reader.GetDateTime("date").Ticks.ToString(),
                     isDraft = reader.GetBoolean("isDraft")
                 };
             }

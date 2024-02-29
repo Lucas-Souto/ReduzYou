@@ -26,13 +26,20 @@ namespace ReduzYou.Controllers
         }
         [HttpPost]
         [ActionName("post_save")]
-        public byte PostSave([FromForm] string title, [FromForm] string action)
+        public string PostSave([FromForm] string action, [FromForm] string link = "", [FromForm] string cover = "", [FromForm] string title = "", [FromForm] string content = "",
+            [FromForm] string tags = "", [FromForm] string dateTicks = "0", [FromForm] string isDraft = "false")
         {
             string username = HttpContext.Session.GetString("_Username");
 
-            if (string.IsNullOrEmpty(username)) return 0;
+            if (string.IsNullOrEmpty(username) || title.Length > 64 || cover.Length > 255 || link.Length > 255 || content.Length > 65_535) return "Ocorreu um erro! Tente novamente mais tarde.";
+            else if (action == "publish" && (title.Length < 10 || content.Length < 100)) return "O título e/ou o conteúdo estão muito curtos!";
 
-            return 0;
+            if (link.Length == 0) DataBase.InsertPost(username, title, content, cover, tags.Split(','), action == "save" ? new DateTime(0) : DateTime.Now, action == "save");
+            else DataBase.UpdatePost(username, link, title, content, cover, tags.Split(','), new DateTime(Convert.ToInt64(dateTicks)), action == "save" ? StringToBool(isDraft) : false);
+            
+            return string.Format("/{0}/{1}", username, Post.MakeLink(title));
         }
+
+        private static bool StringToBool(string @string) => string.IsNullOrEmpty(@string) || @string.ToLower() != "true" ? false : true;
     }
 }

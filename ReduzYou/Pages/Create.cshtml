@@ -6,14 +6,17 @@
     bool logged = !string.IsNullOrEmpty(HttpContext.Session.GetString("_Id")) && !string.IsNullOrEmpty(username);
     ReduzYou.Data.Post post = null;
 
-    if (!logged) Response.Redirect("/");
-    else
+    if (!logged)
     {
-        if (Model.PostLink.Length == 0) post = DataBase.FindDraft(username);
-        else post = DataBase.GetPostEdit(username, Model.PostLink);
+        Response.Redirect("/");
 
-        if (post == null) post = new ReduzYou.Data.Post();
+        return;
     }
+    
+    if (Model.PostLink.Length == 0) post = DataBase.FindDraft(username);
+    else post = DataBase.GetPostEdit(username, Model.PostLink);
+
+    if (post == null) post = new ReduzYou.Data.Post();
 }
 
 @section styles
@@ -29,7 +32,43 @@
     </form>
 </div>
 
+<form id="post-form" method="post">
+    <input name="link" type="hidden" value="@post.link" />
+    <input name="cover" type="hidden" value="@post.cover" />
+    <input name="content" type="hidden" value="@post.content" maxlength="65535" />
+    <input name="dateTicks" type="hidden" value="@post.dateTicks" />
+    <input name="isDraft" type="hidden" value="@post.isDraft.ToString()" />
+
+    <div id="cover-wrapper">
+        <img src="@post.cover" />
+    </div>
+
+    <input name="title" type="text" maxlength="64" placeholder="Meu título legal" value="@post.title" />
+
+    <fieldset id="post-materials"></fieldset>
+
+    <button name="publish">Publicar</button>
+    <button name="save">Salvar</button>
+</form>
+
 @section scripts
 {
     <script type="text/javascript" src="/js/create/image_selector.js" defer></script>
+    <script type="text/javascript" src="/js/create/post_form.js" defer></script>
 }
+
+<script>
+    @if (post.tags != null)
+    {
+        @Html.Raw("function initializeTags() { ")
+        @Html.Raw("checkMaterials([")
+
+        @for (int i = 0; i < post.tags.Count; i++)
+        {
+            @Html.Raw(string.Format("\"{0}\",", post.tags[i]));
+        }
+
+        @Html.Raw("]); }")
+    }
+    else Html.Raw("function initializeTags() { }");
+</script>
