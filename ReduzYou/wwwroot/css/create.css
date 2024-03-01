@@ -9,6 +9,7 @@
 	display: flex;
 	overflow: auto;
 	flex-wrap: wrap;
+	width: 60%;
 	max-height: 80%;
 	justify-content: center;
 	position: absolute;
@@ -43,8 +44,26 @@
 	background-color: var(--sub-background);
 }
 
+#selector-exit
+{
+	cursor: pointer;
+}
+
+#selector-exit::after
+{
+	content: "Sair";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	font-size: 2em;
+	
+	color: var(--white);
+	transform:translate(-50%,-50%);
+}
+
 #add-images,
-.selector-item
+.selector-item,
+#selector-exit
 {
 	width: 6em;
 	height: 6em;

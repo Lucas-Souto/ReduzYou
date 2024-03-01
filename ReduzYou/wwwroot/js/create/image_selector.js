@@ -30,6 +30,11 @@ function onSelect(element)
     imageSelector.classList.remove("show");
 }
 
+function exitSelect()
+{
+    imageSelector.classList.remove("show");
+}
+
 function openSelector(callback = selectCallback)
 {
     selectCallback = callback;

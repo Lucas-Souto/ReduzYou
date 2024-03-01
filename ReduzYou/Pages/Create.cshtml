@@ -27,6 +27,7 @@
 @(await Html.RenderComponentAsync<ReduzYou.Pages.Components.Header>(RenderMode.Static, new { Logged = logged }))
 
 <div id="image-selector">
+    <div id="selector-exit" onclick="exitSelect()"></div>
     <form id="add-images" method="post" enctype="multipart/form-data">
         <input id="image-upload" name="imageUpload" type="file" accept="image/png, image/jpeg" />
     </form>
