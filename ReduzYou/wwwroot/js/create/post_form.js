@@ -1,5 +1,6 @@
 ﻿const postMaterials = document.getElementById("post-materials");
 const postForm = document.getElementById("post-form");
+const editLink = document.getElementById("edit-link");
 
 function getMaterials()
 {
@@ -48,10 +49,15 @@ postForm.addEventListener("submit", (e) =>
 
     request("api/post_save", "post", body, false, (request) =>
     {
-        if (request.responseText.length > 0)
+        if (request.responseText[0] == "/")
         {
             if (body.get("action") == "publish") window.location = request.responseText;
-            else window.alert("Salvo!");
+            else
+            {
+                editLink.value = request.responseText;
+
+                window.alert("Salvo!");
+            }
         }
         else window.alert(request.responseText);
     });

@@ -33,11 +33,9 @@
 </div>
 
 <form id="post-form" method="post">
-    <input name="link" type="hidden" value="@post.link" />
+    <input id="edit-link" name="link" type="hidden" value="@post.link" />
     <input name="cover" type="hidden" value="@post.cover" />
     <input name="content" type="hidden" value="@post.content" maxlength="65535" />
-    <input name="dateTicks" type="hidden" value="@post.dateTicks" />
-    <input name="isDraft" type="hidden" value="@post.isDraft.ToString()" />
 
     <div id="cover-wrapper">
         <img src="@post.cover" />
