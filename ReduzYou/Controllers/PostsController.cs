@@ -51,6 +51,7 @@ namespace ReduzYou.Controllers
                 Post edit = DataBase.GetPostEdit(username, link);
 
                 if (edit == null) return "Ocorreu um erro! Tente novamente mais tarde.";
+                else if (!edit.isDraft && (title.Length < 10 || content.Length < 100)) return "O título e/ou o conteúdo estão muito curtos!";
 
                 switch (action)
                 {
