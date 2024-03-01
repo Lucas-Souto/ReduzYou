@@ -34,24 +34,34 @@
 
 <form id="post-form" method="post">
     <input id="edit-link" name="link" type="hidden" value="@post.link" />
-    <input name="cover" type="hidden" value="@post.cover" />
-    <input name="content" type="hidden" value="@post.content" maxlength="65535" />
+    <input id="cover-input" name="cover" type="hidden" value="@post.cover" />
 
-    <div id="cover-wrapper">
-        <img src="@post.cover" />
+    <div id="main-info">
+        <div id="cover-wrapper">
+            <img id="cover-image" src="@(string.IsNullOrEmpty(post.cover) ? "/img/icon.webp" : post.cover)" />
+
+            <div id="button-wrapper">
+                <button id="cover-button" type="button">Trocar</button>
+            </div>
+        </div>
+
+        <div id="title-materials">
+            <input id="title" name="title" type="text" maxlength="64" placeholder="Meu título legal" value="@post.title" />
+
+            <fieldset id="post-materials"></fieldset>
+        </div>
     </div>
 
-    <input name="title" type="text" maxlength="64" placeholder="Meu título legal" value="@post.title" />
+    @(await Html.RenderComponentAsync<ReduzYou.Pages.Components.PostEditor>(RenderMode.Static, new { Content = post.content }))
 
-    <fieldset id="post-materials"></fieldset>
-
-    <button name="publish">Publicar</button>
-    <button name="save">Salvar</button>
+    <button type="submit" name="publish">Publicar</button>
+    <button type="submit" name="save">Salvar</button>
 </form>
 
 @section scripts
 {
     <script type="text/javascript" src="/js/create/image_selector.js" defer></script>
+    <script type="text/javascript" src="/js/create/post_editor.js" defer></script>
     <script type="text/javascript" src="/js/create/post_form.js" defer></script>
 }
 

@@ -1,6 +1,9 @@
 ﻿const postMaterials = document.getElementById("post-materials");
 const postForm = document.getElementById("post-form");
 const editLink = document.getElementById("edit-link");
+const postContent = document.getElementById("editor-content");
+const coverInput = document.getElementById("cover-input"), coverImage = document.getElementById("cover-image"),
+    coverButton = document.getElementById("cover-button");
 
 function getMaterials()
 {
@@ -30,7 +33,7 @@ for (let i = 0; i < materials.length; i++)
     const id = `material${i}`;
 
     postMaterials.insertAdjacentHTML('beforeend', `
-        <div class="filter-item">
+        <div class="materials-item">
             <input id="${id}" type="checkbox" />
             <label for="${id}">${materials[i]}</label>
         </div>
@@ -46,6 +49,7 @@ postForm.addEventListener("submit", (e) =>
 
     body.set("tags", materials.length > 0 ? materials : ",");
     body.set("action", e.submitter.getAttribute("name"));
+    body.set("content", postContent.innerHTML)
 
     request("api/post_save", "post", body, false, (request) =>
     {
@@ -60,6 +64,18 @@ postForm.addEventListener("submit", (e) =>
             }
         }
         else window.alert(request.responseText);
+    });
+});
+
+coverButton.addEventListener("click", (e) =>
+{
+    openSelector((link) =>
+    {
+        if (link.length > 0)
+        {
+            coverImage.setAttribute("src", link);
+            coverInput.value = link;
+        }
     });
 });
 

@@ -1,0 +1,10 @@
+﻿@code
+{
+	[Parameter]
+	public string Content { get; set; }
+}
+
+<div id="post-editor">
+	<div id="editor-tools"></div>
+	<div id="editor-content" contenteditable="true">@Content</div>
+</div>

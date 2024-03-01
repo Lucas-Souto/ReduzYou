@@ -12,8 +12,8 @@
 	max-height: 80%;
 	justify-content: center;
 	position: absolute;
-	top: 200%;
-	left: 50%;
+	top: 50%;
+	left: 200%;
 
 	padding: 1em;
 	
@@ -25,7 +25,7 @@
 
 #image-selector.show
 {
-	top: 50%;
+	left: 50%;
 }
 
 #image-selector::-webkit-scrollbar
@@ -81,6 +81,160 @@
 	object-fit: contain;
 
 	background-color: var(--sub-background);
+}
+
+/* Formulário */
+#post-form
+{
+	gap: 1em;
+	display: flex;
+	flex-direction: column;
+
+	padding: 1em;
+}
+
+#main-info
+{
+	gap: 1em;
+	display: flex;
+}
+
+/* Sub: Seletor de capa */
+
+#cover-wrapper
+{
+	width: 16em;
+	height: 16em;
+	position: relative;
+
+	background-color: var(--sub-background);
+}
+
+#button-wrapper
+{
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	opacity: 0;
+
+	padding: 50% 50%;
+
+	background-color: #000000ac;
+	transition: linear .1s;
+}
+
+#cover-wrapper:hover #button-wrapper
+{
+	opacity: 1;
+}
+
+#cover-button
+{
+	cursor: pointer;
+	font-size: 1.5em;
+
+	padding: .25em .75em;
+
+	color: var(--white);
+	border: unset;
+	background-color: var(--sub-background);
+	transform: translate(-50%, -50%);
+}
+
+#cover-image
+{
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+}
+
+/* Sub: Título e materiais */
+#title-materials
+{
+	gap: 1em;
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+}
+
+#title,
+#post-materials
+{
+	font-size: 1.75em;
+
+	margin: 0;
+	padding: .5em;
+
+	color: var(--white);
+	border: 2px solid var(--sub-background);
+	background-color: transparent;
+}
+
+#post-materials
+{
+	gap: .25em;
+	height: 100%;
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.materials-item
+{
+	display: flex;
+	height: fit-content;
+
+	padding: .25em;
+
+	border: 2px solid var(--sub-background);
+	transition: linear .05s;
+}
+
+.materials-item:has(input:checked)
+{
+	background-color: var(--sub-background);
+}
+
+.materials-item input
+{
+	display: none;
+}
+
+.materials-item label
+{
+	cursor: pointer;
+}
+
+@media(max-width: 808px)
+{
+	#main-info
+	{
+		flex-direction: column;
+	}
+
+	#cover-wrapper
+	{
+		width: 100%;
+	}
+
+	#cover-image
+	{
+		filter: brightness(.25);
+	}
+
+	#button-wrapper
+	{
+		width: unset;
+		height: unset;
+		opacity: 1;
+		top: 50%;
+		left: 50%;
+
+		padding: 0;
+
+		background-color: unset;
+	}
 }
 
 @media(max-width: 550px)
