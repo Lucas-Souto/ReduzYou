@@ -50,11 +50,6 @@
 	background-color: #0000004d;
 }
 
-.tool.selected
-{
-	background-color: var(--sub-background);
-}
-
 hr
 {
 	width: 100%;
@@ -82,20 +77,14 @@ hr
 }
 
 #editor-content p,
-#editor-content ul,
-#editor-content a
+#editor-content ul
 {
 	font-size: 1.15em;
 }
 
-#editor-content a
+#editor-content p
 {
-	color: var(--main);
-}
-
-#editor-content a:visited
-{
-	color: var(--main2);
+	margin: .15em 0;
 }
 
 #editor-content img

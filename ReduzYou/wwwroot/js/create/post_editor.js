@@ -14,16 +14,16 @@ editorContent.addEventListener("keydown", (e) =>
 {
     if (e.key == "Enter")
     {
+        insert(document.createElement("p"));
         e.preventDefault();
     }
-    else if (e.key.length == 1 && !e.ctrlKey)
+    else if (editorContent.innerHTML.length == 0 && e.key.length == 1 && !e.ctrlKey)
     {
-        if (editorContent.innerHTML.length == 0)
-        {
-            e.preventDefault();
+        const p = document.createElement("p");
+        p.innerText = e.key;
 
-            editorContent.innerHTML = `<p>${e.key}</p>`;
-        }
+        insert(p);
+        e.preventDefault();
     }
 });
 
@@ -33,29 +33,51 @@ for (let i = 0; i < allTools.length; i++) allTools[i].addEventListener("click", 
 
 function toolClick(id)
 {
-    const selection = document.getSelection();
-
     switch (id)
     {
-        case "ttitle":
-
-            break;
-        case "tbold":
-
-            break;
-        case "titalic":
-
-            break;
+        case "ttitle": insert(document.createElement("h2"), true); break;
+        case "tbold": insert(document.createElement("strong"), true); break;
+        case "titalic": insert(document.createElement("em"), true); break;
         case "tlist":
+            const list = document.createElement("ul");
+            list.innerHTML = "<li><br /></li>"
 
-            break;
-        case "tlink":
-
+            insert(list, true);
             break;
         case "timage":
+            openSelector((link) =>
+            {
+                const img = document.createElement("img");
 
+                img.setAttribute("src", link);
+                insert(img);
+            });
             break;
     }
+}
+
+function insert(element, incorporateSelection = false)
+{
+    const selection = window.getSelection();
+    const range = selection.getRangeAt(0);
+
+    if (!editorContent.contains(selection.anchorNode)) return;
+
+    // !! Corrigir ponto de inserção (está criando dentro dos elementos, ao invés de fora) !!
+    // !! Posicionar cursor ao inserir elemento !!
+    if (selection.baseOffset == selection.extentOffset)
+    {
+        if (element.tagName != "IMG" && element.innerHTML.length == 0) element.innerHTML = "<br />";
+
+        range.insertNode(element);
+    }
+    else
+    {
+        if (incorporateSelection) { }
+        else { }
+    }
+
+    selection.removeAllRanges();
 }
 
 editorTools.style.top = `${document.querySelector("header").clientHeight}px`;
