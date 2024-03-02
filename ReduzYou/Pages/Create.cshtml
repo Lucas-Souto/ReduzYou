@@ -39,7 +39,7 @@
 
     <div id="main-info">
         <div id="cover-wrapper">
-            <img id="cover-image" src="@(string.IsNullOrEmpty(post.cover) ? "/img/icon.webp" : post.cover)" />
+            <img id="cover-image" src="@(string.IsNullOrEmpty(post.cover) ? "/img/no_image.svg" : post.cover)" />
 
             <div id="button-wrapper">
                 <button id="cover-button" type="button">Trocar</button>
@@ -55,8 +55,10 @@
 
     @(await Html.RenderComponentAsync<ReduzYou.Pages.Components.PostEditor>(RenderMode.Static, new { Content = post.content }))
 
-    <button type="submit" name="publish">Publicar</button>
-    <button type="submit" name="save">Salvar</button>
+    <div id="post-submit">
+        <button type="submit" name="publish">Publicar</button>
+        <button type="submit" name="save">Salvar</button>
+    </div>
 </form>
 
 @section scripts

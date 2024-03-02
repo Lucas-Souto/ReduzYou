@@ -1,5 +1,6 @@
 ﻿@import url("base.css");
 @import url("components/header.css");
+@import url("components/post_editor.css");
 
 /* Seletor de imagens */
 #image-selector
@@ -223,6 +224,32 @@
 .materials-item label
 {
 	cursor: pointer;
+}
+
+/* Sub: Botões */
+
+#post-submit
+{
+	gap: .5em;
+	display: flex;
+}
+
+#post-submit button
+{
+	cursor: pointer;
+	flex: 1;
+	font-size: 2em;
+
+	padding: .25em .5em;
+
+	color: var(--white);
+	border: 2px solid var(--sub-background);
+	background-color: transparent;
+}
+
+#post-submit button[name="publish"]
+{
+	background-color: var(--sub-background);
 }
 
 @media(max-width: 808px)

@@ -45,7 +45,7 @@ function addPost(post)
 {
     main.insertAdjacentHTML('beforeend', `
         <a class="post" href="/${post.author}/${post.link}">
-            <img class="post-img" src=${post.cover} />
+            <img class="post-img" src=${post.cover.length > 0 ? post.cover.length : "/img/no_image.svg"} />
             <div class="post-bottom">
                 <h3 class="post-title">${post.title}</h3>
                 <div class="post-stars">
