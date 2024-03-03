@@ -67,6 +67,7 @@ namespace ReduzYou.Controllers
             return string.Format("/{0}/{1}", username, Post.MakeLink(title));
         }
 
+        [NonAction]
         private static bool StringToBool(string @string) => string.IsNullOrEmpty(@string) || @string.ToLower() != "true" ? false : true;
     }
 }
