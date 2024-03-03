@@ -143,7 +143,7 @@ internal static class DataBase
             case Order.Star:
                 if (lastTickDate != 0) sql.Append(" AND posts.date < @lastDate");
 
-                sql.Append(" GROUP BY posts.id ORDER BY starCount DESC LIMIT @limit");
+                sql.Append(" GROUP BY posts.id ORDER BY totalValue DESC LIMIT @limit");
                 break;
         }
 
@@ -220,7 +220,7 @@ internal static class DataBase
 		@"SELECT posts.title, posts.content, posts.cover, posts.tag, posts.date,
             count(stars.value) AS starCount, COALESCE(sum(stars.value), 0) AS totalValue FROM posts
             LEFT JOIN stars ON posts.id = stars.post
-            WHERE author = @author AND link = @link
+            WHERE author = @author AND link = @link AND isDraft = 0
             GROUP BY posts.id"
 		.Query((reader) =>
 		{
