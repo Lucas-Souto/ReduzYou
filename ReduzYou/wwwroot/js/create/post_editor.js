@@ -347,9 +347,9 @@ function insert(element, incorporateSelection = false)
                 if (endText.innerHTML.length > 0) editorContent.insertBefore(endText, element.nextSibling);
             }
         }
-
-        removeEmpty();
     }
+
+    removeEmpty();
 
     if (element.tagName == "IMG") range.setStartAfter(element);
     else range.setStart(element, 1);

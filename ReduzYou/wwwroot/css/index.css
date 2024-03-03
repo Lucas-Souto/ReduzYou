@@ -144,6 +144,7 @@ main
 
 .post
 {
+	cursor: pointer;
 	gap: 1em;
 	display: flex;
 	align-items: center;

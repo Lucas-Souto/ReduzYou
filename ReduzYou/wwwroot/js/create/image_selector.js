@@ -22,7 +22,7 @@ addImages.addEventListener("submit", (e) =>
     imageSelector.classList.remove("show");
 });
 
-request("api/get_images", "post", {}, false, (request) => addMoreImages(JSON.parse(request.responseText)));
+request("/api/get_images", "post", {}, false, (request) => addMoreImages(JSON.parse(request.responseText)));
 
 function onSelect(element)
 {
