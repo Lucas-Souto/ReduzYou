@@ -180,9 +180,31 @@ function insert(element, incorporateSelection = false)
     
     if (selection.baseOffset == selection.extentOffset)
     {
-        if (element.tagName != "IMG" && element.innerHTML.length == 0) element.innerHTML = "<br />";
+        if (element.tagName == "IMG")
+        {
+            if (range.commonAncestorContainer.nodeName == "DIV") range.insertNode(element);
+            else
+            {
+                let parent = range.commonAncestorContainer;
+                
+                if (parent.nodeName == "#text") parent = parent.parentElement;
+                
+                const endText = document.createElement(parent.tagName);
+                endText.innerHTML = parent.innerHTML.substring(range.endOffset);
+                parent.innerHTML = parent.innerHTML.substring(0, range.startOffset);
 
-        range.insertNode(element);
+                editorContent.insertBefore(element, parent.nextSibling);
+
+                if (endText.innerHTML.length > 0) editorContent.insertBefore(endText, element.nextSibling);
+            }
+        }
+        else
+        {
+            if (element.innerHTML.length == 0) element.innerHTML = "<br />";
+
+            range.insertNode(element);
+        }
+        
         range.setStartAfter(element);
         range.setEndAfter(element);
     }
