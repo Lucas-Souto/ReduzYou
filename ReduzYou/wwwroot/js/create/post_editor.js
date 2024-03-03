@@ -61,6 +61,15 @@ function toolClick(id)
     }
 }
 
+function removeEmpty()
+{
+    const elements = document.querySelectorAll("#editor-content > *:empty");
+
+    for (let i = 0; i < elements.length; i++)
+    {
+        if (elements[i].tagName != "IMG") editorContent.removeChild(elements[i]);
+    }
+}
 function backspace()
 {
     const selection = window.getSelection();
@@ -115,7 +124,7 @@ function backspace()
         }
     }
 
-    if (editorContent.childNodes.length == 1 && editorContent.childNodes[0].innerHTML.length == 0) editorContent.removeChild(editorContent.childNodes[0]);
+    removeEmpty();
 }
 function breakLine()
 {
@@ -200,16 +209,35 @@ function insert(element, incorporateSelection = false)
                     if (endText.innerHTML.length > 0) editorContent.insertBefore(endText, element.nextSibling);
                 }
                 break;
-            case "STRONG": case "EM":
+            case "P":
+                if (element.innerHTML.length == 0) element.innerHTML = "<br />";
+
+                range.insertNode(element);
+                break;
+            default:
                 if (parent.nodeName == "DIV")
                 {
-                    const wrapper = document.createElement("p");
                     element.innerHTML = "<br />";
 
-                    wrapper.appendChild(element);
-                    range.insertNode(wrapper);
+                    if (element.tagName == "H2") range.insertNode(element);
+                    else
+                    {
+                        const wrapper = document.createElement("p");
 
-                    element = wrapper;
+                        wrapper.appendChild(element);
+                        range.insertNode(wrapper);
+
+                        element = wrapper;
+                    }
+                }
+                else if (element.tagName == "H2")
+                {
+                    element.innerText = parent.innerText;
+                    
+                    if (element.innerHTML.length == 0) element.innerHTML = "<br />";
+
+                    editorContent.insertBefore(element, parent.nextSibling);
+                    editorContent.removeChild(parent);
                 }
                 else
                 {
@@ -220,30 +248,82 @@ function insert(element, incorporateSelection = false)
                     parent.removeChild(original);
                 }
                 break;
-            default:
-                if (element.innerHTML.length == 0) element.innerHTML = "<br />";
-
-                range.insertNode(element);
-                break;
         }
     }
     else
     {
-
         if (incorporateSelection)
         {
+            const original = range.commonAncestorContainer;
+            const content = range.cloneContents();
+            let startText, endText;
+
             switch (element.tagName)
             {
                 case "UL":
 
+                    if (content.childNodes.length == 1)
+                    {
+                        startText = parent.innerHTML.substring(0, range.startOffset);
+                        endText = parent.innerHTML.substring(range.endOffset);
+                        element.childNodes[0].innerHTML = parent.innerHTML.substring(range.startOffset, range.endOffset);
+
+                        original.textContent = startText = parent.innerHTML.substring(0, range.startOffset);
+                        const endElement = document.createElement(parent.tagName);
+                        endElement.innerHTML = endText;
+
+                        editorContent.insertBefore(element, parent.nextSibling);
+                        editorContent.insertBefore(endElement, element.nextSibling);
+                    }
+                    else
+                    {
+                        element.removeChild(element.childNodes[0]);
+                        range.deleteContents();
+
+                        let li;
+
+                        for (let i = 0; i < content.childNodes.length; i++)
+                        {
+                            li = document.createElement("li");
+                            li.innerHTML += content.childNodes[i].innerText;
+
+                            element.appendChild(li);
+                        }
+
+                        editorContent.insertBefore(element, editorContent.childNodes[range.startOffset]);
+                    }
                     break;
                 case "H2":
+                    if (content.childNodes.length == 1)
+                    {
+                        startText = parent.innerHTML.substring(0, range.startOffset);
+                        endText = parent.innerHTML.substring(range.endOffset);
+                        element.innerHTML = parent.innerHTML.substring(range.startOffset, range.endOffset);
 
+                        original.textContent = startText = parent.innerHTML.substring(0, range.startOffset);
+                        const endElement = document.createElement(parent.tagName);
+                        endElement.innerHTML = endText;
+
+                        editorContent.insertBefore(element, parent.nextSibling);
+                        editorContent.insertBefore(endElement, element.nextSibling);
+                    }
+                    else
+                    {
+                        range.deleteContents();
+
+                        for (let i = 0; i < content.childNodes.length; i++)
+                        {
+                            element.innerHTML += content.childNodes[i].innerText;
+
+                            if (i != content.length - 1) element.innerHTML += "<br />";
+                        }
+
+                        editorContent.insertBefore(element, editorContent.childNodes[range.startOffset]);
+                    }
                     break;
                 default:
-                    const original = range.commonAncestorContainer;
-                    const startText = document.createTextNode(parent.innerHTML.substring(0, range.startOffset)),
-                        endText = document.createTextNode(parent.innerHTML.substring(range.endOffset));
+                    startText = document.createTextNode(parent.innerHTML.substring(0, range.startOffset));
+                    endText = document.createTextNode(parent.innerHTML.substring(range.endOffset));
                     element.innerHTML = parent.innerHTML.substring(range.startOffset, range.endOffset);
 
                     parent.insertBefore(startText, original.nextSibling);
@@ -267,10 +347,14 @@ function insert(element, incorporateSelection = false)
                 if (endText.innerHTML.length > 0) editorContent.insertBefore(endText, element.nextSibling);
             }
         }
+
+        removeEmpty();
     }
 
-    range.setStartAfter(element);
-    range.setEndAfter(element);
+    if (element.tagName == "IMG") range.setStartAfter(element);
+    else range.setStart(element, 1);
+
+    range.collapse(true);
 }
 
 editorTools.style.top = `${document.querySelector("header").clientHeight}px`;
