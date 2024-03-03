@@ -114,6 +114,8 @@ function backspace()
             }
         }
     }
+
+    if (editorContent.childNodes.length == 1 && editorContent.childNodes[0].innerHTML.length == 0) editorContent.removeChild(editorContent.childNodes[0]);
 }
 function breakLine()
 {
@@ -177,18 +179,85 @@ function insert(element, incorporateSelection = false)
 
     const selection = window.getSelection();
     const range = selection.getRangeAt(0);
+    let parent = range.commonAncestorContainer;
+
+    if (parent.nodeName == "#text") parent = parent.parentElement;
     
     if (selection.baseOffset == selection.extentOffset)
     {
-        if (element.tagName == "IMG")
+        switch (element.tagName)
         {
-            if (range.commonAncestorContainer.nodeName == "DIV") range.insertNode(element);
+            case "IMG": case "UL":
+                if (parent.nodeName == "DIV") range.insertNode(element);
+                else
+                {
+                    const endText = document.createElement(parent.tagName);
+                    endText.innerHTML = parent.innerHTML.substring(range.endOffset);
+                    parent.innerHTML = parent.innerHTML.substring(0, range.startOffset);
+
+                    editorContent.insertBefore(element, parent.nextSibling);
+
+                    if (endText.innerHTML.length > 0) editorContent.insertBefore(endText, element.nextSibling);
+                }
+                break;
+            case "STRONG": case "EM":
+                if (parent.nodeName == "DIV")
+                {
+                    const wrapper = document.createElement("p");
+                    element.innerHTML = "<br />";
+
+                    wrapper.appendChild(element);
+                    range.insertNode(wrapper);
+
+                    element = wrapper;
+                }
+                else
+                {
+                    const original = range.commonAncestorContainer;
+
+                    element.appendChild(document.createTextNode(original.textContent));
+                    parent.insertBefore(element, original);
+                    parent.removeChild(original);
+                }
+                break;
+            default:
+                if (element.innerHTML.length == 0) element.innerHTML = "<br />";
+
+                range.insertNode(element);
+                break;
+        }
+    }
+    else
+    {
+
+        if (incorporateSelection)
+        {
+            switch (element.tagName)
+            {
+                case "UL":
+
+                    break;
+                case "H2":
+
+                    break;
+                default:
+                    const original = range.commonAncestorContainer;
+                    const startText = document.createTextNode(parent.innerHTML.substring(0, range.startOffset)),
+                        endText = document.createTextNode(parent.innerHTML.substring(range.endOffset));
+                    element.innerHTML = parent.innerHTML.substring(range.startOffset, range.endOffset);
+
+                    parent.insertBefore(startText, original.nextSibling);
+                    parent.insertBefore(element, startText.nextSibling);
+                    parent.insertBefore(endText, element.nextSibling);
+                    parent.removeChild(original);
+                    break;
+            }
+        }
+        else
+        {
+            if (parent.nodeName == "DIV") range.insertNode(element);
             else
             {
-                let parent = range.commonAncestorContainer;
-                
-                if (parent.nodeName == "#text") parent = parent.parentElement;
-                
                 const endText = document.createElement(parent.tagName);
                 endText.innerHTML = parent.innerHTML.substring(range.endOffset);
                 parent.innerHTML = parent.innerHTML.substring(0, range.startOffset);
@@ -198,25 +267,10 @@ function insert(element, incorporateSelection = false)
                 if (endText.innerHTML.length > 0) editorContent.insertBefore(endText, element.nextSibling);
             }
         }
-        else
-        {
-            if (element.innerHTML.length == 0) element.innerHTML = "<br />";
+    }
 
-            range.insertNode(element);
-        }
-        
-        range.setStartAfter(element);
-        range.setEndAfter(element);
-    }
-    else
-    {
-        if (incorporateSelection)
-        {
-            if (element.tagName == "UL") { }
-            else { }
-        }
-        else { }
-    }
+    range.setStartAfter(element);
+    range.setEndAfter(element);
 }
 
 editorTools.style.top = `${document.querySelector("header").clientHeight}px`;
