@@ -1,0 +1,63 @@
+﻿@page "/{user}/{post}"
+@model ReduzYou.Pages.PostModel
+@{
+	if (Model.User.Length == 0 || Model.Post.Length == 0)
+	{
+		Response.Redirect("/");
+
+		return;
+	}
+
+	ReduzYou.Data.Post post = DataBase.GetPost(Model.User, Model.Post);
+
+	if (post == null)
+	{
+		Response.Redirect("/");
+
+		return;
+	}
+
+	ViewData["Title"] = string.Format("- {0}", post.title);
+	bool logged = !string.IsNullOrEmpty(HttpContext.Session.GetString("_Id"));
+}
+
+@section styles
+{
+	<link rel="stylesheet" href="/css/post.css" />
+}
+
+@(await Html.RenderComponentAsync<ReduzYou.Pages.Components.Header>(RenderMode.Static, new { Logged = logged }))
+
+<main>
+	<div id="title-wrapper">
+		<h1 id="post-title">@post.title</h1>
+		<em id="post-by">Por @(string.Format("@{0} - {1}", post.author, new DateTime(post.dateTicks).ToString("dd/MM/yyyy")))</em>
+	</div>
+	<hr />
+	<div id="post-content">@Html.Raw(post.content)</div>
+	<div id="post-bottom">
+		<div id="post-stars"></div>
+
+		@if (post.author == HttpContext.Session.GetString("_Username"))
+		{
+			<button id="post-edit" type="button" onclick="window.location = '@(string.Format("/create/{0}", post.link))'">Editar</button>
+		}
+	</div>
+</main>
+
+@if (!logged) @(await Html.RenderComponentAsync<ReduzYou.Pages.Components.AccountForm>(RenderMode.Static))
+
+@section scripts
+{
+	@if (!logged)
+	{
+		<script type="text/javascript" src="/js/account_form.js" defer></script>
+	}
+
+	<script type="text/javascript" src="/js/post.js" defer></script>
+}
+
+<script>
+	let starCount = @post.starCount;
+	let totalValue = @post.totalValue;
+</script>

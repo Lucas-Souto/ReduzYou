@@ -55,9 +55,9 @@ namespace ReduzYou.Controllers
 
                 switch (action)
                 {
-                    case "save": DataBase.UpdatePost(username, link, title, content, cover, tags.Split(','), new DateTime(Convert.ToInt64(edit.dateTicks)), edit.isDraft); break;
+                    case "save": DataBase.UpdatePost(username, link, title, content, cover, tags.Split(','), new DateTime(edit.dateTicks), edit.isDraft); break;
                     case "publish":
-                        DateTime date = edit.isDraft ? DateTime.Now : new DateTime(Convert.ToInt64(edit.dateTicks));
+                        DateTime date = edit.isDraft ? DateTime.Now : new DateTime(edit.dateTicks);
 
                         DataBase.UpdatePost(username, link, title, content, cover, tags.Split(','), date, false);
                         break;
@@ -65,6 +65,14 @@ namespace ReduzYou.Controllers
             }
             
             return string.Format("/{0}/{1}", username, Post.MakeLink(title));
+        }
+		[HttpPost]
+		[ActionName("give_star")]
+		public void GiveStar([FromForm] int stars, [FromForm] string postAuthor, [FromForm] string postLink)
+        {
+			string username = HttpContext.Session.GetString("_Username");
+			
+            if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(postAuthor) && !string.IsNullOrEmpty(postLink)) DataBase.GiveStar(stars, username, postAuthor, postLink);
         }
 
         [NonAction]

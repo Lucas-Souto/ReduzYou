@@ -44,7 +44,7 @@ window.addEventListener("click", (e) =>
     }
     else if (log.contains(e.target) || (accountReverse.contains(e.target) && accountFormTitle.innerText == signTitle))
     {
-        accountForm.setAttribute("action", "api/enter_account");
+        accountForm.setAttribute("action", "/api/enter_account");
         accountForm.classList.add("show");
         
         accountFormTitle.innerText = logTitle;
@@ -52,7 +52,7 @@ window.addEventListener("click", (e) =>
     }
     else if (sign.contains(e.target) || (accountReverse.contains(e.target) && accountFormTitle.innerText == logTitle))
     {
-        accountForm.setAttribute("action", "api/create_account");
+        accountForm.setAttribute("action", "/api/create_account");
         accountForm.classList.add("show");
 
         accountFormTitle.innerText = signTitle;

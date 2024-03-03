@@ -17,7 +17,7 @@ internal static class DataBase
         {
             ConnectionString = connectionString;
 
-            @"CREATE TABLE IF NOT EXISTS users
+			@"CREATE TABLE IF NOT EXISTS users
             (
                 id VARCHAR(36) PRIMARY KEY,
                 username VARCHAR(32) UNIQUE,
@@ -120,7 +120,7 @@ internal static class DataBase
     public static void FillFeed(Post[] feed, Order order, string[] tags, long lastTickDate)
     {
         int index = 0;
-        StringBuilder sql = new StringBuilder(@"SELECT posts.id, posts.title, posts.author, posts.link, posts.cover, posts.date,
+        StringBuilder sql = new StringBuilder(@"SELECT posts.title, posts.author, posts.link, posts.cover, posts.date,
             count(stars.value) AS starCount, COALESCE(sum(stars.value), 0) AS totalValue FROM posts
             LEFT JOIN stars ON posts.id = stars.post
             WHERE isDraft = 0");
@@ -155,12 +155,11 @@ internal static class DataBase
 
                 feed[index] = new Post()
                 {
-                    id = reader.GetString("id"),
                     title = reader.GetString("title"),
                     author = reader.GetString("author"),
                     link = reader.GetString("link"),
                     cover = reader.GetString("cover"),
-                    dateTicks = reader.GetDateTime("date").Ticks.ToString(),
+                    dateTicks = reader.GetDateTime("date").Ticks,
                     starCount = reader.GetUInt32("starCount"),
                     totalValue = reader.GetUInt32("totalValue")
                 };
@@ -200,12 +199,13 @@ internal static class DataBase
             {
                 result = new Post()
                 {
+                    author = author,
                     link = link,
                     title = reader.GetString("title"),
                     content = reader.GetString("content"),
                     cover = reader.GetString("cover"),
                     tags = Post.GetTags(Convert.ToInt32(reader.GetString("tag"))),
-                    dateTicks = reader.GetDateTime("date").Ticks.ToString(),
+                    dateTicks = reader.GetDateTime("date").Ticks,
                     isDraft = reader.GetBoolean("isDraft")
                 };
             }
@@ -213,7 +213,37 @@ internal static class DataBase
 
         return result;
     }
-    private static string GetLink(string author, string link)
+	public static Post GetPost(string author, string link)
+	{
+		Post result = null;
+
+		@"SELECT posts.title, posts.content, posts.cover, posts.tag, posts.date,
+            count(stars.value) AS starCount, COALESCE(sum(stars.value), 0) AS totalValue FROM posts
+            LEFT JOIN stars ON posts.id = stars.post
+            WHERE author = @author AND link = @link
+            GROUP BY posts.id"
+		.Query((reader) =>
+		{
+			if (reader.Read())
+			{
+				result = new Post()
+				{
+					author = author,
+					link = link,
+					title = reader.GetString("title"),
+					content = reader.GetString("content"),
+					cover = reader.GetString("cover"),
+					tags = Post.GetTags(Convert.ToInt32(reader.GetString("tag"))),
+					dateTicks = reader.GetDateTime("date").Ticks,
+					starCount = reader.GetUInt32("starCount"),
+					totalValue = reader.GetUInt32("totalValue")
+				};
+			}
+		}, ("@author", author), ("@link", link));
+
+		return result;
+	}
+	private static string GetLink(string author, string link)
     {
         int count = 0;
 
@@ -224,9 +254,28 @@ internal static class DataBase
 
         return count != 0 ? string.Format("{0}{1}", link, count) : link;
     }
-    #endregion
-    #region Images
-    public static string InsertImage(string userId)
+	#endregion
+	#region Stars
+    public static void GiveStar(int stars, string username, string postAuthor, string postLink)
+    {
+		stars = Math.Max(Math.Min(stars, 5), 1) * 10;
+        string postId = string.Empty;
+        
+        "SELECT id FROM posts WHERE author = @author AND link = @link".Query((reader) =>
+        {
+            if (reader.Read()) postId = reader.GetString("id");
+        }, ("@author", postAuthor), ("@link", postLink));
+
+        if (postId.Length > 0)
+        {
+			int rows = "UPDATE stars SET value = @stars WHERE post = @post AND user = @user".Run(("@stars", stars), ("@post", postId), ("@user", username));
+
+            if (rows == 0) "INSERT INTO stars (post, user, value) VALUES(@post, @user, @stars)".Run(("@post", postId), ("@user", username), ("@stars", stars));
+		}
+	}
+	#endregion
+	#region Images
+	public static string InsertImage(string userId)
     {
         string id = "0";
         

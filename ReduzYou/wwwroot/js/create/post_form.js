@@ -51,7 +51,7 @@ postForm.addEventListener("submit", (e) =>
     body.set("action", e.submitter.getAttribute("name"));
     body.set("content", postContent.innerHTML)
 
-    request("api/post_save", "post", body, false, (request) =>
+    request("/api/post_save", "post", body, false, (request) =>
     {
         if (request.responseText[0] == "/")
         {

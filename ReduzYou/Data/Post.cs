@@ -23,7 +23,7 @@ namespace ReduzYou.Data
         public bool isDraft { get; set; }
         public uint starCount { get; set; }
         public uint totalValue { get; set; }
-        public string dateTicks { get; set; }
+        public long dateTicks { get; set; }
         public string id { get; set; }
         public string author { get; set; }
         public string title { get; set; }
