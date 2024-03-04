@@ -109,7 +109,7 @@ internal static class DataBase
     }
     public static string UpdatePost(string author, string originalLink, string title, string content, string cover, string[] tags, DateTime date, bool isDraft)
 	{
-		string link = GetLink(author, Post.MakeLink(title));
+		string link = GetLink(author, Post.MakeLink(title), originalLink);
 
 		@"UPDATE posts SET
             link = @link,
@@ -251,16 +251,16 @@ internal static class DataBase
 
 		return result;
 	}
-	private static string GetLink(string author, string link)
+	private static string GetLink(string author, string link, string originalLink = "")
     {
         int count = 0;
 
-        "SELECT count(link) AS repeated FROM posts WHERE author = @author AND link LIKE @start".Query((reader) =>
-        {
-            if (reader.Read()) count = reader.GetInt32("repeated");
-        }, ("@author", author), ("@start", string.Format("{0}%", link)));
+		"SELECT count(link) AS repeated FROM posts WHERE author = @author AND link != @original AND link LIKE @start".Query((reader) =>
+		{
+			if (reader.Read()) count = reader.GetInt32("repeated");
+		}, ("@author", author), ("@start", string.Format("{0}%", link)), ("@original", originalLink));
 
-        return count != 0 ? string.Format("{0}{1}", link, count) : link;
+		return count != 0 ? string.Format("{0}{1}", link, count) : link;
     }
 	#endregion
 	#region Stars

@@ -11,7 +11,7 @@
         @if (Logged)
         {
             <button class="header-button fill" type="button" onclick="window.location = '/create'">Criar</button>
-            <button class="header-button" type="button" onclick="request('api/exit_account', 'get', {}, false, () => location.reload())">Sair</button>
+            <button class="header-button" type="button" onclick="request('/api/exit_account', 'get', {}, false, () => location.reload())">Sair</button>
         }
         else
         {
