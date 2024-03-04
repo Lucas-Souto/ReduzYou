@@ -97,15 +97,21 @@ internal static class DataBase
     }
     #endregion
     #region Posts
-    public static void InsertPost(string author, string title, string content, string cover, string[] tags, DateTime date, bool isDraft)
+    public static string InsertPost(string author, string title, string content, string cover, string[] tags, DateTime date, bool isDraft)
     {
-        "INSERT INTO posts (id, link, author, title, content, cover, tag, date, isDraft) VALUES (uuid(), @link, @author, @title, @content, @cover, @tag, @date, @isDraft)"
-            .Run(("@link", GetLink(author, Post.MakeLink(title))), ("@author", author), ("@title", title), ("@content", content), 
+        string link = GetLink(author, Post.MakeLink(title));
+
+		"INSERT INTO posts (id, link, author, title, content, cover, tag, date, isDraft) VALUES (uuid(), @link, @author, @title, @content, @cover, @tag, @date, @isDraft)"
+            .Run(("@link", link), ("@author", author), ("@title", title), ("@content", content), 
                 ("@cover", cover), ("@tag", Post.MakeTagValue(tags)), ("@date", date), ("@isDraft", isDraft));
+
+        return link;
     }
-    public static void UpdatePost(string author, string originalLink, string title, string content, string cover, string[] tags, DateTime date, bool isDraft)
-    {
-        @"UPDATE posts SET
+    public static string UpdatePost(string author, string originalLink, string title, string content, string cover, string[] tags, DateTime date, bool isDraft)
+	{
+		string link = GetLink(author, Post.MakeLink(title));
+
+		@"UPDATE posts SET
             link = @link,
             title = @title,
             content = @content,
@@ -114,8 +120,10 @@ internal static class DataBase
             date = @date,
             isDraft = @isDraft
             WHERE author = @author AND link = @originalLink"
-            .Run(("@author", author), ("@originalLink", originalLink), ("@link", Post.MakeLink(title)), ("@title", title), ("@content", content), ("@cover", cover), ("@tag", Post.MakeTagValue(tags)), 
+			.Run(("@author", author), ("@originalLink", originalLink), ("@link", link), ("@title", title), ("@content", content), ("@cover", cover), ("@tag", Post.MakeTagValue(tags)), 
                 ("@date", date), ("@isDraft", isDraft));
+
+        return link;
     }
     public static void FillFeed(Post[] feed, Order order, string[] tags, long lastTickDate)
     {

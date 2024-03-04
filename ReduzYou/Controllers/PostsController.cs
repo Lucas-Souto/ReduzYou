@@ -33,6 +33,8 @@ namespace ReduzYou.Controllers
             if (string.IsNullOrEmpty(username) || title.Length > 64 || cover.Length > 255 || link.Length > 255 || content.Length > 65_535) return "Ocorreu um erro! Tente novamente mais tarde.";
             else if (action == "publish" && (title.Length < 10 || content.Length < 100)) return "O título e/ou o conteúdo estão muito curtos!";
 
+            string postLink = string.Empty;
+
             if (link.Length == 0)
             {
                 switch (action)
@@ -40,10 +42,10 @@ namespace ReduzYou.Controllers
                     case "save":
                         Post draft = DataBase.FindDraft(username);
 
-                        if (draft == null) DataBase.InsertPost(username, title, content, cover, tags.Split(','), new DateTime(0), true);
-                        else DataBase.UpdatePost(username, draft.link, title, content, cover, tags.Split(','), new DateTime(0), true);
+                        if (draft == null) postLink = DataBase.InsertPost(username, title, content, cover, tags.Split(','), new DateTime(0), true);
+                        else postLink = DataBase.UpdatePost(username, draft.link, title, content, cover, tags.Split(','), new DateTime(0), true);
                         break;
-                    case "publish": DataBase.InsertPost(username, title, content, cover, tags.Split(','), DateTime.Now, false); break;
+                    case "publish": postLink = DataBase.InsertPost(username, title, content, cover, tags.Split(','), DateTime.Now, false); break;
                 }
             }
             else
@@ -55,16 +57,16 @@ namespace ReduzYou.Controllers
 
                 switch (action)
                 {
-                    case "save": DataBase.UpdatePost(username, link, title, content, cover, tags.Split(','), new DateTime(edit.dateTicks), edit.isDraft); break;
+                    case "save": postLink = DataBase.UpdatePost(username, link, title, content, cover, tags.Split(','), new DateTime(edit.dateTicks), edit.isDraft); break;
                     case "publish":
                         DateTime date = edit.isDraft ? DateTime.Now : new DateTime(edit.dateTicks);
 
-                        DataBase.UpdatePost(username, link, title, content, cover, tags.Split(','), date, false);
+						postLink = DataBase.UpdatePost(username, link, title, content, cover, tags.Split(','), date, false);
                         break;
                 }
             }
             
-            return string.Format("/{0}/{1}", username, Post.MakeLink(title));
+            return string.Format("/{0}/{1}", username, postLink);
         }
 		[HttpPost]
 		[ActionName("give_star")]
