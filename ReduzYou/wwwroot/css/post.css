@@ -6,8 +6,11 @@ main
 {
 	gap: 1em;
 	display: flex;
+	min-width: 80%;
+	max-width: 900px;
 	flex-direction: column;
 
+	margin: 0 auto;
 	padding: 1em;
 
 	color: var(--white);

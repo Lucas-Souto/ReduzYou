@@ -43,7 +43,6 @@
 /* Filtro */
 #filter
 {
-	width: fit-content;
 	flex: 1 1 0px;
 	
 	background-color: var(--sub-background);
@@ -146,6 +145,7 @@ main
 {
 	cursor: pointer;
 	gap: 1em;
+	width: 320px;
 	display: flex;
 	align-items: center;
 	flex-direction: column;
@@ -192,6 +192,7 @@ a:link
 .post-title
 {
 	font-size: 1.25em;
+	overflow-wrap: break-word;
 
 	margin: 0;
 }
@@ -238,6 +239,11 @@ a:link
 		flex-wrap: wrap;
 	}
 
+	.post
+	{
+		width: 100%;
+	}
+
 	.post:hover
 	{
 		margin-right: unset;
@@ -247,14 +253,9 @@ a:link
 
 	.post-img
 	{
-		width: 180px;
+		width: 100%;
 
 		transition: inherit;
-	}
-
-	.post:hover .post-img
-	{
-		width: 200px;
 	}
 
 	.post-title
