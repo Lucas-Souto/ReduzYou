@@ -58,7 +58,7 @@ postForm.addEventListener("submit", (e) =>
             if (body.get("action") == "publish") window.location = request.responseText;
             else
             {
-                editLink.value = request.responseText;
+                editLink.value = request.responseText.split("/")[2];
 
                 window.alert("Salvo!");
             }
